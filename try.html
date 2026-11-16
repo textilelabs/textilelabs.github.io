@@ -3,74 +3,106 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try a model · Textile Labs</title>
-<meta name="description" content="Chat with a Loom running entirely in your browser.">
+<meta name="description" content="Chat with a Loom running entirely in your browser, with or without web search.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@144,900,100&family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css">
 <link rel="icon" href="favicon.png" type="image/png">
 <style>
-.tryGrid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:30px;padding:20px 5vw 50px;align-items:stretch}
-/* the side panel: a rack with a red thread running down it, each Loom a tag hanging from it */
-.rack{position:relative;background:var(--night);color:#EDE2D2;border-radius:6px;padding:26px 22px 24px 44px;box-shadow:0 30px 60px -34px rgba(20,27,47,.8);overflow:hidden}
+/* this page is a tool: a shorter header, and the whole workbench fits the window */
+.pageHead{padding:34px 5vw 6px;max-width:none}
+.pageHead .titleCanvas{margin-bottom:10px}
+.pageHead h1{font-size:clamp(48px,5.4vw,80px);margin:0 0 10px}
+.pageHead p{font-size:17px;max-width:95ch}
+.tryGrid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:26px;padding:16px 5vw 40px;height:var(--fit,calc(100vh - 40px));min-height:380px;box-sizing:content-box}
+/* the side panel: a rack with a red thread, each Loom a tag hanging from it. Only the tags scroll. */
+.rack{position:relative;background:var(--night);color:#EDE2D2;border-radius:6px;box-shadow:0 30px 60px -34px rgba(20,27,47,.8);overflow:hidden;min-height:0}
 .rack::before{content:"";position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.5px) 0 0/14px 14px;pointer-events:none}
-.rack::after{content:"";position:absolute;left:24px;top:0;bottom:0;width:2px;background:var(--thread);box-shadow:0 0 8px rgba(181,55,44,.6)}
+.rack::after{content:"";position:absolute;left:24px;top:0;bottom:0;width:2px;background:var(--thread);box-shadow:0 0 8px rgba(181,55,44,.6);pointer-events:none}
+.rackScroll{position:relative;height:100%;overflow-y:auto;padding:24px 22px 22px 44px;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:rgba(237,226,210,.3) transparent}
 .rack h2{position:relative;font:400 24px var(--serif);margin:0 0 4px}
-.rack .sub{position:relative;font-size:14px;opacity:.7;margin:0 0 22px}
-.tagBtn{position:relative;display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;width:100%;margin:0 0 16px;padding:10px 12px;border:0;border-radius:3px;cursor:pointer;text-align:left;
+.rack .sub{position:relative;font-size:14px;opacity:.7;margin:0 0 18px}
+.tagBtn{position:relative;display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:center;width:calc(100% - 10px);margin:0 0 14px;padding:9px 12px;border:0;border-radius:3px;cursor:pointer;text-align:left;
   background:#F3E6D1;color:var(--ink);box-shadow:0 8px 14px -8px rgba(0,0,0,.6);transform-origin:-20px 50%;transition:transform .45s cubic-bezier(.2,.8,.2,1.2),box-shadow .3s}
 .tagBtn::before{content:"";position:absolute;left:-22px;top:50%;width:22px;height:2px;background:rgba(237,226,210,.5)}
 .tagBtn::after{content:"";position:absolute;left:-25px;top:calc(50% - 4px);width:9px;height:9px;border-radius:50%;background:var(--thread);box-shadow:0 0 0 2px var(--night)}
-.tagBtn canvas,.tagBtn .lg{width:52px;height:52px;border-radius:50%;display:block;object-fit:cover;background:#FBF5EA}
-.tagBtn b{display:block;font:400 19px/1.1 var(--serif)}.tagBtn small{font-size:12px;opacity:.75}
+.tagBtn canvas,.tagBtn .lg{width:48px;height:48px;border-radius:50%;display:block;object-fit:cover;background:#FBF5EA}
+.tagBtn b{display:block;font:400 18px/1.1 var(--serif)}.tagBtn small{font-size:12px;opacity:.75}
+.tagBtn .net{display:inline-block;margin-top:3px;font:600 10.5px var(--sans);letter-spacing:.04em;color:var(--thread)}
 .tagBtn:hover{transform:rotate(-1.5deg) translateX(4px)}
 .tagBtn[aria-pressed=true]{transform:translateX(8px);box-shadow:0 0 0 2px var(--thread),0 12px 20px -10px rgba(0,0,0,.7)}
-.rack .group{position:relative;font:400 17px var(--serif);margin:18px 0 10px;opacity:.85}
+.rack .group{position:relative;font:400 17px var(--serif);margin:16px 0 10px;opacity:.85}
 .rack .groupNote{position:relative;font-size:13px;opacity:.65;margin:-6px 0 12px}
-.msg.verdict{align-self:flex-start;background:#FFFDF8;border:1.5px solid rgba(29,40,71,.2);border-left:4px solid var(--thread);border-radius:3px;padding:10px 16px;max-width:90%}
-.msg.verdict b{display:block;font:400 26px/1.1 var(--serif)}
-.msg.verdict code{font:12px ui-monospace,Menlo,monospace;opacity:.6}
-.msg.verdict span{display:block;font-size:14px;opacity:.85;margin-top:2px}
 .rack .fine{position:relative;font-size:13px;line-height:1.5;opacity:.7;margin:8px 0 0}
 .rack .fine a{border-bottom:1px solid rgba(237,226,210,.5)}
-/* the chat */
-.chat{background:var(--card);border-radius:4px;box-shadow:0 30px 60px -36px rgba(29,40,71,.55);display:grid;grid-template-rows:auto auto 1fr auto;min-height:600px}
-.chatHead{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 22px;border-bottom:1px dashed rgba(29,40,71,.3)}
+/* the chat: header, log (the only part that scrolls) and the composer */
+.chat{background:var(--card);border-radius:4px;box-shadow:0 30px 60px -36px rgba(29,40,71,.55);display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-height:0}
+.chatHead{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px dashed rgba(29,40,71,.3)}
 .chatHead b{font:400 24px var(--serif)}.chatHead small{display:block;font-size:13px;opacity:.75}
+.headBtns{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
 .btn{border:0;background:var(--ink);color:#F7EEE2;border-radius:3px;padding:9px 16px;font-weight:600;cursor:pointer}
 .btn.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(29,40,71,.35)}
 .btn:disabled{opacity:.45;cursor:default}
+/* the web-search switch */
+.netSw{position:relative;display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;cursor:pointer;user-select:none}
+.netSw[hidden]{display:none}
+.netSw input{position:absolute;opacity:0;width:1px;height:1px}
+.netSw .track{position:relative;width:40px;height:22px;border-radius:11px;background:rgba(29,40,71,.22);transition:background .25s}
+.netSw .track::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .3s cubic-bezier(.2,.8,.2,1.2)}
+.netSw input:checked + .track{background:var(--thread)}
+.netSw input:checked + .track::after{transform:translateX(18px)}
+.netSw input:focus-visible + .track{outline:2px solid var(--ink);outline-offset:2px}
 .progress{height:3px;background:rgba(29,40,71,.1);position:relative;overflow:hidden;visibility:hidden}
 .progress i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--thread);transition:width .2s}
-.log{padding:22px;display:flex;flex-direction:column;gap:14px;overflow:auto;max-height:62vh}
+.log{padding:20px 22px;display:flex;flex-direction:column;gap:14px;overflow:auto;min-height:0}
 .msg{max-width:78%;line-height:1.5;white-space:pre-wrap}
 .msg.u{align-self:flex-end;background:#E9D9C3;padding:9px 14px;border-radius:12px 12px 2px 12px}
 .msg.m{align-self:flex-start;border-left:2px solid var(--thread);padding-left:14px}
 .msg.m .think{display:block;font-size:13px;opacity:.6;margin-bottom:4px}
-.msg.sys{align-self:center;font-size:14px;opacity:.75;text-align:center;max-width:56ch}
+.msg.sys{align-self:center;font-size:14px;opacity:.75;text-align:center;max-width:58ch}
+.msg.verdict{align-self:flex-start;background:#FFFDF8;border:1.5px solid rgba(29,40,71,.2);border-left:4px solid var(--thread);border-radius:3px;padding:10px 16px;max-width:90%}
+.msg.verdict b{display:block;font:400 26px/1.1 var(--serif)}
+.msg.verdict code{font:12px ui-monospace,Menlo,monospace;opacity:.6}
+.msg.verdict span{display:block;font-size:14px;opacity:.85;margin-top:2px}
+/* what the harness did, shown between the question and the answer */
+.msg.step{align-self:flex-start;white-space:normal;max-width:86%;font-size:14px;background:#F3E9DA;border:1px dashed rgba(29,40,71,.3);border-radius:3px;padding:10px 14px}
+.msg.step code{display:inline-block;font:12.5px ui-monospace,Menlo,monospace;background:#fff;border-radius:3px;padding:1px 6px;margin:0 0 6px}
+.msg.step .st{display:block;font-weight:600;font-size:12px;letter-spacing:.04em;opacity:.7;margin:0 0 4px}
+.msg.step q{display:block;font-style:italic;margin:6px 0 4px}
+.msg.step a{border-bottom:1.5px solid var(--thread)}
+.msg.step.fail{border-color:var(--thread)}
 .examples{display:flex;flex-wrap:wrap;gap:6px;padding:10px 22px 0}
 .examples button{border:1px solid rgba(29,40,71,.25);background:transparent;border-radius:999px;padding:3px 11px;font-size:13px;cursor:pointer}
 .examples button:hover{background:#fff}
-form.ask{display:flex;gap:10px;padding:12px 22px 18px}
-form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,71,.3);border-radius:3px;padding:9px 12px;background:#FFFDF9;min-height:44px;max-height:160px}
+form.ask{display:flex;gap:10px;padding:10px 22px 16px}
+form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,71,.3);border-radius:3px;padding:9px 12px;background:#FFFDF9;min-height:44px;max-height:120px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-@media (max-width:860px){.tryGrid{grid-template-columns:1fr}}
+@media (max-height:860px) and (min-width:861px){.pageHead{padding-top:16px}.pageHead h1{font-size:46px;margin:0 0 6px}.pageHead p{font-size:15px}}
+@media (max-width:860px){
+  .tryGrid{grid-template-columns:1fr;height:auto}
+  .rack{max-height:300px}
+  .chat{height:78vh;min-height:480px}
+  .chatHead{flex-wrap:wrap}
+  .msg,.msg.step{max-width:94%}
+}
 </style>
 </head>
 <body data-page="try">
 <div data-nav></div>
 <main id="main">
-<header class="pageHead"><h1 data-title data-style="spark">Try a model</h1><p>These Looms run inside your browser. The model downloads once from Hugging Face, then everything happens on your device: nothing you type is sent anywhere.</p></header>
-<div class="tryGrid">
-  <aside class="rack" aria-label="Choose a model"><h2>Pick a Loom</h2><p class="sub">Each one runs on this device.</p>
+<header class="pageHead"><h1 data-title data-compact data-style="spark">Try a model</h1><p>These Looms run in your browser. Each downloads once from Hugging Face, and nothing you type leaves your device unless you switch on web search, which sends only the model's search words to Wikipedia.</p></header>
+<div class="tryGrid" id="grid">
+  <aside class="rack" aria-label="Choose a model"><div class="rackScroll"><h2>Pick a Loom</h2><p class="sub">Each one runs on this device.</p>
     <h3 class="group">Chat</h3><div id="optsChat"></div>
     <h3 class="group">Decisions</h3><p class="groupNote">These answer with one label, for use inside an app.</p><div id="optsDec"></div>
-    <p class="fine">They are small models. They will get things wrong, and they are built to say so when they don't know. Weave 4 is the most capable chat model here. Every other Loom can be run on your computer: see its label on the <a href="models.html">models page</a>, or find the right one on <a href="use-cases.html">use cases</a>.</p></aside>
+    <p class="fine">These are small models. They know few facts, they get things wrong, and they are built to say so when they can't know. Every Loom can also run on your computer: see its label on the <a href="models.html">models page</a>, or find the right one on <a href="use-cases.html">use cases</a>.</p></div></aside>
   <section class="chat" aria-label="Chat">
-    <div class="chatHead"><div><b id="cName"></b><small id="cInfo"></small></div><button class="btn" id="loadBtn">Load the model</button></div>
+    <div class="chatHead"><div><b id="cName"></b><small id="cInfo"></small></div>
+      <div class="headBtns"><label class="netSw" id="netWrap" hidden title="Lets the model look things up on Wikipedia, the same way harness.py does"><input type="checkbox" id="net"><span class="track" aria-hidden="true"></span><span>Web search</span></label><button class="btn" id="loadBtn">Load the model</button></div></div>
     <div class="progress" id="prog" aria-hidden="true"><i></i></div>
     <div class="log" id="log" aria-live="polite"></div>
     <div><div class="examples" id="examples"></div>
-      <form class="ask" id="ask"><label class="vh" for="q">Your message</label><textarea id="q" rows="1" placeholder="Ask something, or paste a short text and ask about it" disabled></textarea><button class="btn" id="send" disabled>Send</button><button type="button" class="btn quiet" id="stop" hidden>Stop</button></form></div>
+      <form class="ask" id="ask"><label class="vh" for="q">Your message</label><textarea id="q" rows="1" placeholder="Ask something" disabled></textarea><button class="btn" id="send" disabled>Send</button><button type="button" class="btn quiet" id="stop" hidden>Stop</button></form></div>
   </section>
 </div>
 </main>
@@ -79,35 +111,63 @@ form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,
 <script type="module">
 const WL='https://cdn.jsdelivr.net/npm/@wllama/wllama@3.8.1';
 const order=['weave-4','spark-3','tapestry-3-flash','swift-mini-2','planck-1-2m','swift-micro-2','router-1','atom'];
+// Which Looms were trained to write <lookup> calls, and which harness.py their repo ships:
+//  finder  = the Weave 4 / Spark 3 / Swift 2 harness (searches the query and the subject, hands back ONE sentence)
+//  summary = the Tapestry 3 Flash harness (top hit's summary, first two sentences)
+//  tools   = the Swift 2 / Planck harness also runs <tool>calc ...</tool> and <tool>date ...</tool>
+const NET={'weave-4':{kind:'finder'},'spark-3':{kind:'finder'},'tapestry-3-flash':{kind:'summary'},
+  'swift-mini-2':{kind:'finder',tools:true},'swift-micro-2':{kind:'finder',tools:true},'planck-1-2m':{kind:'finder',tools:true}};
 const demos=TLDATA.all().filter(m=>m.demo).sort((x,y)=>order.indexOf(x.slug)-order.indexOf(y.slug));
-let cur=TLDATA.bySlug(new URLSearchParams(location.search).get('model')); if(!cur||!cur.demo) cur=demos.find(m=>m.slug==='weave-4')||demos[0];
-const $=id=>document.getElementById(id), log=$('log'), q=$('q'), send=$('send'), stop=$('stop'), loadBtn=$('loadBtn'), prog=$('prog');
+const params=new URLSearchParams(location.search);
+let cur=TLDATA.bySlug(params.get('model')); if(!cur||!cur.demo) cur=demos.find(m=>m.slug==='weave-4')||demos[0];
+const $=id=>document.getElementById(id), log=$('log'), q=$('q'), send=$('send'), stop=$('stop'), loadBtn=$('loadBtn'), prog=$('prog'), net=$('net');
 let wllama=null, loaded=null, history=[], abort=null;
+if(params.get('search')==='on') net.checked=true;
+
+/* ---------- fit the workbench to the window: only the model list and the conversation scroll ---------- */
+// if the space under the header is too short, the workbench takes the whole window and scrolls into view when used
+let tall=false;
+function fit(){ const g=$('grid'); if(innerWidth<=860){ g.style.removeProperty('--fit'); tall=false; return; }
+  const top=g.getBoundingClientRect().top+scrollY, avail=innerHeight-top-56; tall=avail<360;
+  g.style.setProperty('--fit',(tall?innerHeight-48:avail)+'px'); }
+const into=()=>{ if(tall){ const g=$('grid'); scrollTo({top:g.getBoundingClientRect().top+scrollY-16,behavior:'smooth'}); } };
+addEventListener('resize',fit); fit(); setTimeout(fit,400); setTimeout(fit,1500); document.fonts&&document.fonts.ready.then(fit);
+
 const ROUTES={search:['Search','Look it up on the web'],calc:['Calculator','Work out a sum'],time:['Time','Check the time or date'],weather:['Weather','Check the weather'],calendar:['Calendar','Look at or change the calendar'],
   reminder:['Reminder','Set a reminder'],email:['Email','Read or send email'],notes:['Notes','Save or find a note'],maps:['Maps','Find a place or directions'],translate:['Translate','Translate some text'],convert:['Convert','Convert units or currency'],
   define:['Define','Look up a word'],music:['Music','Play or find music'],answer:['Answer','No tool needed: just answer'],clarify:['Clarify','Ambiguous: ask what you meant'],unknowable:['Unknowable','Only you would know this; no tool can help'],refuse:['Refuse','This shouldn\'t be done']};
-const EX={chat:['Who are you?','How big are you?','Text: The bridge was built in 1891 by Ada Lowe. Who built the bridge?','What is my mother\'s name?'],
+const EX={chat:['Who are you?','What can\'t you do?','Text: The bridge was built in 1891 by Ada Lowe. Who built the bridge?','What is my mother\'s name?'],
+  net:['What is the capital of Peru?','Who wrote Dracula?','What is the chemical symbol for gold?','When did the Titanic sink?'],
+  tools:['What is 15% of 840?','What day is it in 20 days?'],
   route:['remind me to call mum at 6','whats the weather in leeds tomorrow','play some jazz','whats my sisters name','convert 30 miles to km'],
   gate:['whats the weather in leeds','who are you','convert 30 miles to km','i had a rough day']};
 const mode=m=>m.demoMode||'chat';
+const searching=()=>!!(loaded&&NET[loaded.slug]&&net.checked&&mode(loaded)==='chat');
+const size=m=>m.demoMB<1?Math.round(m.demoMB*1000)+' KB':m.demoMB+' MB';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 demos.forEach(m=>{ const b=document.createElement('button'); b.className='tagBtn'; b.dataset.slug=m.slug;
-  b.innerHTML=(m.logo?'<img class="lg" src="'+m.logo+'" alt="">':'<canvas></canvas>')+'<span><b>'+m.name+'</b><small>'+m.size+' parameters, '+(m.demoMB<1?Math.round(m.demoMB*1000)+' KB':m.demoMB+' MB')+'</small></span>';
+  b.innerHTML=(m.logo?'<img class="lg" src="'+m.logo+'" alt="">':'<canvas></canvas>')+'<span><b>'+m.name+'</b><small>'+m.size+' parameters, '+size(m)+'</small>'+(NET[m.slug]?'<br><span class="net">CAN SEARCH THE WEB</span>':'')+'</span>';
   $(mode(m)==='chat'?'optsChat':'optsDec').appendChild(b);
-  if(!m.logo) requestAnimationFrame(()=>TL.paintSwatch(b.querySelector('canvas'),{mix:TLDATA.MIX[m.line],cell:9,seed:m.name.length*7,ground:'#F1DFCB',w:52,h:52}));
-  b.onclick=()=>select(m); });
-function examples(m){ const ex=EX[mode(m)]; $('examples').innerHTML=ex.map(e=>'<button type="button">'+e.replace(/</g,'&lt;')+'</button>').join('');
+  if(!m.logo) requestAnimationFrame(()=>TL.paintSwatch(b.querySelector('canvas'),{mix:TLDATA.MIX[m.line],cell:9,seed:m.name.length*7,ground:'#F1DFCB',w:48,h:48}));
+  b.onclick=()=>{ select(m); into(); }; });
+function examples(m){ let ex=EX[mode(m)]; if(mode(m)==='chat'&&NET[m.slug]&&net.checked) ex=EX.net.concat(NET[m.slug].tools?EX.tools:[]);
+  $('examples').innerHTML=ex.map(e=>'<button type="button">'+esc(e)+'</button>').join('');
   $('examples').querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{ q.value=ex[i]; if(!q.disabled) q.focus(); }); }
 function add(cls,text){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
 function setReady(on){ q.disabled=!on; send.disabled=!on; }
-const size=m=>m.demoMB<1?Math.round(m.demoMB*1000)+' KB':m.demoMB+' MB';
 const intro={chat:'Ask it something.',route:'Type a request. Router 1 answers with one label: the tool that should handle it.',gate:'Type a request. Atom answers one question: does this need a tool?'};
+const netNote='Web search is on. When the model decides it needs to look something up, it writes a search; this page runs it on Wikipedia and hands back a short passage, exactly as the harness.py in its repo does. You will see each step. Only the search words leave your device, and each question is asked fresh.';
+function placeholder(m){ q.placeholder=mode(m)!=='chat'?'Type a request, like "remind me to call mum at 6"':(NET[m.slug]&&net.checked?'Ask a factual question, like "who wrote Dracula?"':'Ask something, or paste a short text and ask about it'); }
 function select(m){ cur=m; document.querySelectorAll('.tagBtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.slug===m.slug)));
   $('cName').textContent='Loom '+m.name; $('cInfo').textContent=m.size+' parameters, '+size(m)+' download';
-  q.placeholder=mode(m)==='chat'?'Ask something, or paste a short text and ask about it':'Type a request, like "remind me to call mum at 6"';
+  $('netWrap').hidden=!NET[m.slug]; placeholder(m);
   history=[]; log.innerHTML=''; examples(m);
-  if(loaded===m){ loadBtn.hidden=true; setReady(true); add('sys','Ready. '+intro[mode(m)]); }
-  else { loadBtn.hidden=false; loadBtn.disabled=false; loadBtn.textContent='Load the model'; setReady(false); add('sys','Load '+m.name+' to start. '+intro[mode(m)]+' It stays cached in your browser, so next time it opens straight away.'); }
-  try{ const u=new URL(location); u.searchParams.set('model',m.slug); window.history.replaceState(null,'',u); }catch(_){} }
+  if(loaded===m){ loadBtn.hidden=true; setReady(true); add('sys','Ready. '+intro[mode(m)]); if(searching()) add('sys',netNote); }
+  else { loadBtn.hidden=false; loadBtn.disabled=false; loadBtn.textContent='Load the model'; setReady(false); add('sys','Load '+m.name+' to start. '+intro[mode(m)]+' It stays cached in your browser, so next time it opens straight away.'+(NET[m.slug]?' It can also search the web: switch on Web search to watch how.':'')); }
+  syncUrl(); }
+function syncUrl(){ try{ const u=new URL(location); u.searchParams.set('model',cur.slug); if(NET[cur.slug]&&net.checked) u.searchParams.set('search','on'); else u.searchParams.delete('search'); window.history.replaceState(null,'',u); }catch(_){} }
+net.onchange=()=>{ examples(cur); placeholder(cur); syncUrl(); history=[];
+  if(loaded===cur) add('sys',net.checked?netNote:'Web search is off. Everything stays on your device.'); };
 async function load(){
   loadBtn.disabled=true; loadBtn.textContent='Loading…'; prog.style.visibility='visible'; prog.firstChild.style.width='0';
   try{
@@ -115,30 +175,142 @@ async function load(){
     if(wllama){ try{ await wllama.exit(); }catch(_){} }
     wllama=new Wllama({default:WL+'/src/wasm/wllama.wasm'},{suppressNativeLog:true});
     await wllama.loadModelFromHF({repo:'textilelabs/'+cur.hf,file:cur.demo},{n_ctx:mode(cur)==='chat'?2048:256,progressCallback:({loaded:l,total:t})=>{ prog.firstChild.style.width=(t?100*l/t:0)+'%'; }});
-    loaded=cur; loadBtn.hidden=true; prog.style.visibility='hidden'; setReady(true); log.innerHTML=''; add('sys','Ready. '+cur.name+' is running on your device. '+intro[mode(cur)]); q.focus();
+    loaded=cur; loadBtn.hidden=true; prog.style.visibility='hidden'; setReady(true); log.innerHTML=''; add('sys','Ready. '+cur.name+' is running on your device. '+intro[mode(cur)]); if(searching()) add('sys',netNote); q.focus();
   }catch(e){ console.error(e); prog.style.visibility='hidden'; loadBtn.disabled=false; loadBtn.textContent='Try again';
     add('sys','The model could not load: '+(e&&e.message?e.message:'unknown error')+'. Check your connection and try again, or use a desktop browser.'); }
 }
-loadBtn.onclick=load;
+loadBtn.onclick=()=>{ into(); load(); };
+
+/* ---------- the model ---------- */
 // the Loom chat format, exactly as trained (the same template that is built into the GGUF files)
-function prompt(){ let s='<tools:off>\n'; for(const t of history){ s+= t.role==='user' ? '<user>\n'+t.content+'\n<|eot|>\n' : '<loom>\n'+t.content+'<|eot|>\n'; } return s+'<loom>\n'; }
+function chatPrompt(){ let s='<tools:off>\n'; for(const t of history){ s+= t.role==='user' ? '<user>\n'+t.content+'\n<|eot|>\n' : '<loom>\n'+t.content+'<|eot|>\n'; } return s+'<loom>\n'; }
 function render(el,raw){ const m=raw.match(/^<think>([\s\S]*?)(<\/think>|$)\s*([\s\S]*)$/); el.textContent=''; if(m){ const th=document.createElement('span'); th.className='think'; th.textContent='Thinking: '+m[1].trim(); el.appendChild(th); el.appendChild(document.createTextNode(m[3])); } else el.textContent=raw; }
+const STOPS=['<|eot|>','\n<user>','<user>','<result>','<output>'];
+const cut=s=>{ let i=s.length; for(const t of STOPS){ const k=s.indexOf(t); if(k>=0&&k<i) i=k; } return s.slice(0,i); };
+// generate until a stop marker; `show` streams the visible text into a bubble (null keeps it hidden)
+async function generate(prompt,max,show,extraStop){
+  let raw=''; abort=new AbortController();
+  try{ await wllama.createCompletion({prompt,max_tokens:max,temperature:0,stream:true,abortSignal:abort.signal,onData:ch=>{
+      raw+=(ch.choices&&ch.choices[0]&&(ch.choices[0].text??''))||'';
+      if(show){ render(show,cut(raw)); log.scrollTop=log.scrollHeight; }
+      if(STOPS.some(t=>raw.includes(t))||(extraStop&&extraStop.test(raw))) abort.abort(); }}); }
+  catch(err){ if(!err||err.name!=='AbortError') throw err; }
+  return cut(raw).trim();
+}
 async function decide(text){ // Router and Atom: one token, shown as a label
   let raw=''; const ac=new AbortController();
   try{ await wllama.createCompletion({prompt:'<user>\n'+text+'\n<|eot|>\n<loom>\n',max_tokens:2,temperature:0,stream:true,abortSignal:ac.signal,onData:ch=>{ raw+=(ch.choices&&ch.choices[0]&&ch.choices[0].text)||''; if(/<[^>]+>/.test(raw)) ac.abort(); }}); }catch(e){ if(e.name!=='AbortError') throw e; }
   const tok=(raw.match(/<[^>]+>/)||[raw.trim()])[0]; const d=document.createElement('div'); d.className='msg verdict';
-  if(mode(loaded)==='route'){ const r=(tok.match(/route:(\w+)/)||[])[1]; const R=ROUTES[r]||[tok||'No answer','']; d.innerHTML='<code>'+tok.replace(/</g,'&lt;')+'</code><b>'+R[0]+'</b><span>'+R[1]+'</span>'; }
-  else { const yes=tok.includes('tool'); d.innerHTML='<code>'+tok.replace(/</g,'&lt;')+'</code><b>'+(yes?'Needs a tool':'No tool needed')+'</b><span>'+(yes?'Hand it to something that picks the tool, like Router 1.':'Answer it directly; no search or tool call.')+'</span>'; }
+  if(mode(loaded)==='route'){ const r=(tok.match(/route:(\w+)/)||[])[1]; const R=ROUTES[r]||[tok||'No answer','']; d.innerHTML='<code>'+esc(tok)+'</code><b>'+R[0]+'</b><span>'+R[1]+'</span>'; }
+  else { const yes=tok.includes('tool'); d.innerHTML='<code>'+esc(tok)+'</code><b>'+(yes?'Needs a tool':'No tool needed')+'</b><span>'+(yes?'Hand it to something that picks the tool, like Router 1.':'Answer it directly; no search or tool call.')+'</span>'; }
   log.appendChild(d); log.scrollTop=log.scrollHeight;
 }
+function step(html,fail){ const d=document.createElement('div'); d.className='msg step'+(fail?' fail':''); d.innerHTML=html; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+
+/* ---------- the harness, ported line for line from the harness.py in each repo ---------- */
+const API='https://en.wikipedia.org/w/api.php?', wcache=new Map(), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function wget(url){ if(wcache.has(url)) return wcache.get(url);
+  for(let a=0;a<3;a++){ const r=await fetch(url,{headers:{'Api-User-Agent':'LoomTryPage/1.0 (https://textilelabs.github.io)'}});
+    if(r.ok){ const j=await r.json(); wcache.set(url,j); return j; }
+    if([429,502,503,504].includes(r.status)){ await sleep(1500*(a+1)); continue; } throw new Error('Wikipedia returned '+r.status); }
+  throw new Error('Wikipedia is busy, try again'); }
+const wq=p=>wget(API+new URLSearchParams({...p,format:'json',origin:'*'}));
+const wsearch=async(s,n)=>(((await wq({action:'query',list:'search',srsearch:s,srlimit:n})).query||{}).search||[]).map(h=>h.title);
+async function wextract(title,intro){ const p={action:'query',prop:'extracts',explaintext:1,titles:title,redirects:1}; if(intro) p.exintro=1;
+  const pages=((await wq(p)).query||{}).pages||{}; return (Object.values(pages)[0]||{}).extract||''; }
+const SENT=/(?<=[.!?])\s+(?=[A-Z0-9])/, PAREN=/\s*\([^()]*\)/g, HEADING=/^\s*=+[^=]+=+\s*$/gm;
+const STOPW=new Set(('what whats who whos whom whose when where which why how is are was were be the a an of in on to for does did do by from with as at and or that this it its there tell me please can you many much').split(' '));
+const ATTR=new Set(('capital city height tall high elevation population largest biggest smallest longest shortest tallest highest deepest first last symbol chemical language languages spoken legs year date end ended sink sank invented inventor discovered discovery developed wrote written author painted painter president founded born died age old size area distance speed').split(' '));
+const JUNK=/^(lists? of|outline of|index of|timeline of)\b|\((film|album|song|band|novel|play|tv series|musical|opera|video game|book|composition|poem)\)|\bdisambiguation\b/i;
+const keywords=t=>(t.toLowerCase().match(/[\p{L}\p{N}]+/gu)||[]).filter(w=>!STOPW.has(w));
+const subject=qq=>{ const kw=keywords(qq); return kw.filter(k=>!ATTR.has(k)).join(' ')||kw.join(' '); };
+function clean(t){ let prev=null; while(prev!==t){ prev=t; t=t.replace(PAREN,''); } return t.replaceAll(' ,',',').replace(/\s+/g,' ').trim(); }
+function hard(qq,s){ let b=0;
+  if(/\b(how tall|how high|height|elevation)\b/.test(qq)) b+=/\d[\d,.]*\s*(m|metres|meters|ft|feet|km)\b/.test(s)?2:0;
+  if(/\b(when|what year|which year|what date)\b/.test(qq)) b+=/\b(1\d{3}|20\d{2})\b/.test(s)?2:0;
+  if(/\b(how many|how much|population|number of)\b/.test(qq)) b+=/\d/.test(s)?1.5:0;
+  if(/\bwho\b/.test(qq)) b+=/\b[A-Z][a-z]+ [A-Z][a-z]+/.test(s)?1.5:0;
+  if(/\bsymbol\b/.test(qq)) b+=/\bsymbol\b/i.test(s)?2:0;
+  if(/\bcapital\b/.test(qq)) b+=/\bcapital\b/i.test(s)?2:0;
+  return b; }
+function kind(qq,s){ let b=hard(qq,s); const sl=s.toLowerCase();
+  if(/\b(how tall|how high|height|elevation)\b/.test(qq)) b+=/\b(summit|elevation|height|above sea level|highest|stands)\b/.test(sl)?1.5:-0.5;
+  if(/\b(end|ended|finish|finished)\b/.test(qq)) b+=/\b(ended|end of|surrender|surrendered|concluded|finished)\b/.test(sl)?1.5:-0.5;
+  if(/\bpopulation\b/.test(qq)) b+=/\d{1,3}(,\d{3})+|\d+(\.\d+)?\s*(million|billion)/.test(s)?2:-1;
+  if(/\b(invent|invented|inventor|discovered|wrote|painted|composed|founded)\b/.test(qq)) b+=/\b[A-Z][a-z]+ (?:[A-Z][a-z]+ )?[A-Z][a-z]+\b/.test(s)?1:0;
+  return b; }
+async function findSentence(query,question){ // one sentence most likely to hold the answer, and the article it came from
+  const qq=question.toLowerCase(), subj=subject(question), pool=new Map(), ql=query.trim().toLowerCase();
+  for(const tq of [...new Set([query.trim(),subj,keywords(question).join(' ')].filter(Boolean))]){
+    (await wsearch(tq,3)).forEach((t,rank)=>{ const tl=t.toLowerCase();
+      let s=(tl===subj||tl===ql)?4:(subj&&tl.startsWith(subj))?2:0; s+=JUNK.test(t)?-4:0;
+      pool.set(t,Math.max(pool.has(t)?pool.get(t):-1e9,s-0.3*rank)); }); }
+  const qk=[...new Set(keywords(question).concat(keywords(query)))];
+  const top=[...pool.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const typed=/\b(how tall|how high|height|elevation|when|what year|which year|how many|how much|population|who|symbol|capital)\b/.test(qq);
+  let best=[-1e9,'',''];
+  for(const intro of [true,false]){ let foundKind=false;
+    for(const [title,ps] of top){ const raw=await wextract(title,intro); if(/\b(may|can) refer to\b/.test(raw.slice(0,400))) continue;
+      const sents=clean(raw.replace(HEADING,' ')).split(SENT).map(s=>s.trim()).filter(s=>s.length>20&&s.length<600);
+      sents.slice(0,intro?14:90).forEach((s,i)=>{ const sl=s.toLowerCase(); const sc=ps+qk.filter(k=>sl.includes(k)).length+kind(qq,s)+(i<3?0.5:0);
+        if(sc>best[0]){ best=[sc,s,title]; foundKind=hard(qq,s)>0; } }); }
+    if(best[1]&&(!typed||foundKind)) break; }
+  return {text:best[1],source:best[2]}; }
+async function findSummary(query){ // Tapestry 3 Flash: the top hit's summary, first two sentences
+  const t=await wsearch(query,1); if(!t.length) return {text:'',source:''};
+  const j=await wget('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t[0]));
+  return {text:(j.extract||'').split(/(?<=[.!?])\s+/).slice(0,2).join(' ').trim(),source:t[0]}; }
+function fitResult(t){ const cap=Math.floor(1200*3.3); if(t.length<=cap) return t; let o=''; for(const s of t.split(/(?<=[.!?]) +/)){ if(o.length+s.length+1>cap) break; o=(o+' '+s).trim(); } return o||t.slice(0,cap); }
+// calculator + date, matching the functions the Swift 2 / Planck models were trained against
+function calcEval(expr){ const tk=expr.match(/\d+\.?\d*|\.\d+|\*\*|[-+*/%()]|\S/g)||[]; let i=0;
+  const peek=()=>tk[i], next=()=>tk[i++];
+  const num=()=>{ const t=next(); if(t==='('){ const v=add(); if(next()!==')') throw 0; return v; } if(t!==undefined&&/^[\d.]+$/.test(t)) return parseFloat(t); throw 0; };
+  const pow=()=>{ const b=num(); if(peek()==='**'){ next(); const e=unary(); if(Math.abs(e)>12) throw 0; return Math.pow(b,e); } return b; };
+  const unary=()=>{ if(peek()==='-'){ next(); return -unary(); } if(peek()==='+'){ next(); return unary(); } return pow(); };
+  const mul=()=>{ let v=unary(); while(['*','/','%'].includes(peek())){ const o=next(), r=unary(); if(o!=='*'&&r===0) throw 0; v=o==='*'?v*r:o==='/'?v/r:((v%r)+r)%r; } return v; };
+  const add=()=>{ let v=mul(); while(peek()==='+'||peek()==='-'){ const o=next(), r=mul(); v=o==='+'?v+r:v-r; } return v; };
+  const v=add(); if(i!==tk.length||!isFinite(v)) throw 0; return Number.isInteger(v)?String(v):String(Number(v.toPrecision(6))); }
+const safeCalc=e=>{ try{ return calcEval(e); }catch(_){ return 'error'; } };
+function safeDate(cmd){ try{ cmd=cmd.trim(); const DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const now=new Date(); now.setHours(12,0,0,0); let m;
+    if(cmd==='today') return iso(now)+' ('+DAY[now.getDay()]+')';
+    if((m=cmd.match(/^([+-])(\d+)d$/))){ const d=new Date(now); d.setDate(d.getDate()+(m[1]==='+'?1:-1)*parseInt(m[2],10)); return iso(d)+' ('+DAY[d.getDay()]+')'; }
+    if((m=cmd.match(/^(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})$/))){ const a=Date.parse(m[1]), b=Date.parse(m[2]); if(isNaN(a)||isNaN(b)) return 'error'; return Math.round(Math.abs(b-a)/864e5)+' days'; }
+    return 'error'; }catch(_){ return 'error'; } }
+
+// one turn through the harness: ask with tools on; if the model writes a call, run it and ask again with the result
+async function harnessTurn(text){
+  const spec=NET[loaded.slug], convo='<tools:on>\n<user>\n'+text.trim()+'\n<|eot|>\n<loom>\n';
+  const thinking=add('sys','Thinking…');
+  const first=await generate(convo,160,null,/<\/lookup>|<\/tool>/); thinking.remove();
+  const tool=first.match(/<tool>\s*(calc|date)\s+([\s\S]*?)<\/tool>/), look=first.match(/<lookup>([\s\S]*?)<\/lookup>/);
+  if(spec.tools&&tool){ const k=tool[1], arg=tool[2].trim(), out=k==='calc'?safeCalc(arg):safeDate(arg);
+    step('<span class="st">THE MODEL CALLED A TOOL</span><code>'+esc(tool[0])+'</code><br>The harness ran the '+(k==='calc'?'calculator':'date tool')+' and handed back: <b>'+esc(out)+'</b>');
+    const o=add('m',''); await generate(convo+first+'<|eot|>\n<output>\n'+out+'\n<|eot|>\n<loom>\n',64,o); return; }
+  if(!look){ const o=add('m',''); render(o,first||'(no answer)'); return; }  // it answered without searching
+  const query=look[1].trim();
+  const s=step('<span class="st">THE MODEL WANTS TO LOOK SOMETHING UP</span><code>'+esc(look[0])+'</code><br><span class="note">Searching Wikipedia…</span>');
+  const fail=msg=>{ s.classList.add('fail'); s.querySelector('.note').textContent=msg; };
+  let res;
+  try{ res=spec.kind==='summary'?await findSummary(query):await findSentence(query,text); }
+  catch(e){ fail('The search failed ('+(e.message||e)+'). The harness never hands an error to the model, so there is no answer this time.'); return; }
+  if(!res.text){ fail('Nothing found on Wikipedia for “'+query+'”, so the harness stops here.'); return; }
+  const result=fitResult(res.text), url='https://en.wikipedia.org/wiki/'+encodeURIComponent(res.source.replace(/ /g,'_'));
+  s.innerHTML='<span class="st">THE MODEL WANTS TO LOOK SOMETHING UP</span><code>'+esc(look[0])+'</code><br>The harness searched Wikipedia and handed back '+(spec.kind==='summary'?'the start of':'one sentence from')+' <a href="'+url+'" target="_blank" rel="noopener">'+esc(res.source)+'</a>:<q>'+esc(result)+'</q>';
+  log.scrollTop=log.scrollHeight;
+  const o=add('m',''); const ans=await generate(convo+first+'<|eot|>\n<result>\n'+result+'\n<|eot|>\n<loom>\n',spec.tools?64:48,o,/<lookup>/);
+  if(/<lookup>/.test(ans)){ o.textContent=ans.replace(/<lookup>[\s\S]*$/,'').trim()||'(no answer)'; add('sys','It tried to search a second time. The harness allows one search per question, so it stops here.'); }
+}
+
 $('ask').onsubmit=async e=>{ e.preventDefault(); const text=q.value.trim(); if(!text||!loaded) return; q.value=''; add('u',text);
-  if(mode(loaded)!=='chat'){ setReady(false); try{ await decide(text); }catch(err){ add('sys','Something went wrong: '+(err.message||err)); } setReady(true); q.focus(); return; }
-  history.push({role:'user',content:text});
-  setReady(false); stop.hidden=false; const out=add('m',''); let raw=''; abort=new AbortController();
-  try{ await wllama.createCompletion({prompt:prompt(),max_tokens:256,temperature:0,stream:true,abortSignal:abort.signal,
-      onData:ch=>{ const piece=(ch.choices&&ch.choices[0]&&(ch.choices[0].text??''))||''; raw+=piece; render(out,raw.replace(/<\|eot\|>[\s\S]*/,'')); log.scrollTop=log.scrollHeight; if(raw.includes('<|eot|>')||raw.includes('\n<user>')) abort.abort(); }});
-  }catch(err){ if(err&&err.name!=='AbortError') add('sys','Something went wrong while answering: '+(err.message||err)); }
-  history.push({role:'assistant',content:raw.replace(/<\|eot\|>[\s\S]*/,'').replace(/\n<user>[\s\S]*/,'').trim()}); if(history.length>12) history.splice(0,history.length-12);
+  setReady(false);
+  try{
+    if(mode(loaded)!=='chat') await decide(text);
+    else if(searching()){ stop.hidden=false; await harnessTurn(text); }
+    else { history.push({role:'user',content:text}); stop.hidden=false; const out=add('m','');
+      const reply=await generate(chatPrompt(),256,out); history.push({role:'assistant',content:reply}); if(history.length>12) history.splice(0,history.length-12); }
+  }catch(err){ add('sys','Something went wrong: '+(err.message||err)); }
   stop.hidden=true; setReady(true); q.focus(); };
 stop.onclick=()=>abort&&abort.abort();
 q.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); $('ask').requestSubmit(); } });

@@ -26,7 +26,7 @@ document.querySelectorAll('[data-title]').forEach(h=>{
   const text=h.textContent.trim(), st=h.dataset.style||'spark';
   const cv=document.createElement('canvas'); cv.className='titleCanvas'; cv.setAttribute('aria-hidden','true'); h.classList.add('painted'); h.after(cv);
   const draw=()=>{ const g=document.createElement('canvas').getContext('2d'); g.font='900 100px Fraunces'; const w=g.measureText(text).width, a=g.measureText(text).actualBoundingBoxAscent;
-    const H=Math.min(140,Math.max(78,innerWidth*0.085)); cv.style.width=Math.min(innerWidth*0.9, w*(H/a)*0.92)+'px';
+    let H=Math.min(140,Math.max(78,innerWidth*0.085)); if(h.dataset.compact!==undefined) H=Math.min(H,Math.max(56,innerHeight*0.095)); cv.style.width=Math.min(innerWidth*0.9, w*(H/a)*0.92)+'px';
     const p=TL.paintWord(cv,{text,font:'Fraunces',weight:900,fill:0.99,style:st,interactive:true}); p.start(); };
   document.fonts.load('900 100px Fraunces').then(draw);
 });
