@@ -74,9 +74,7 @@ footer.site{margin-top:0}
 </section>
 <div data-footer></div>
 
-<div class="mock" aria-label="Design options (not part of the site)"><b>Logo style <span id="now" style="font-weight:400;opacity:.7"></span></b>
-<div class="opts"><button data-style="spark">A · Spark 3.2</button><button data-style="gouache">B · Wet gouache</button><button data-style="drybrush">C · Dry brush</button><button data-style="ink">D · Planck ink</button><button data-style="sketch">E · Sketch</button><button data-style="twill">F · Twill loom</button><button data-style="sand">G · Desert sand</button><button data-style="leaves">H · Autumn leaves</button></div>
-<button id="auto" class="on">Cycle every 15 s: on</button> <button id="replay">Replay the opening</button></div>
+
 
 <script src="data.js"></script><script src="chrome.js"></script><script src="painter.js"></script>
 <script>
@@ -92,17 +90,13 @@ const NAMES={spark:'A · Spark 3.2',gouache:'B · Wet gouache',drybrush:'C · Dr
 const ALL=Object.keys(NAMES); let queue=[], timer=0, auto=true;
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function shuffled(last){ let q; do{ q=ALL.slice().sort(()=>Math.random()-.5); }while(q[0]===last); return q; }
-function mark(st){ document.querySelectorAll('[data-style]').forEach(x=>x.classList.toggle('on',x.dataset.style===st)); document.getElementById('now').textContent='· '+NAMES[st]; }
+function mark(st){}
 function schedule(){ clearTimeout(timer); if(!auto||reduceMotion) return; timer=setTimeout(next,15000); }
 function next(){ if(document.hidden){ schedule(); return; } if(!queue.length) queue=shuffled(painter.style); const st=queue.shift(); mark(st); painter.setStyle(st,true); schedule(); }
 document.fonts.load('900 100px Fraunces').then(()=>{
   painter=TL.paintWord(document.getElementById('word'),{text:'Loom',font:'Fraunces',weight:900,fill:0.99,style:'spark',interactive:true,hoverHost:hero,onDone:settle});
   painter.start(); mark('spark'); queue=shuffled('spark').filter(x=>x!=='spark'); schedule();
 });
-function reset(){hero.classList.remove('ready');document.getElementById('thread').style.width='0';}
-document.getElementById('replay').onclick=()=>{reset(); mark('spark'); painter.setStyle('spark'); painter.replay(); queue=shuffled('spark').filter(x=>x!=='spark'); schedule();};
-document.querySelectorAll('[data-style]').forEach(b=>b.onclick=()=>{ mark(b.dataset.style); painter.setStyle(b.dataset.style,true); queue=queue.filter(x=>x!==b.dataset.style); schedule(); });
-document.getElementById('auto').onclick=e=>{ auto=!auto; e.target.classList.toggle('on',auto); e.target.textContent='Cycle every 15 s: '+(auto?'on':'off'); schedule(); };
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.35});
 document.querySelectorAll('.entry').forEach((el,i)=>{ el.style.transitionDelay=(i*0.12)+'s'; io.observe(el); });
 function reveal(){ document.querySelectorAll('.entry:not(.in),.does > div:not(.in)').forEach(e=>{ if(e.getBoundingClientRect().top<innerHeight*0.85) e.classList.add('in'); }); }
