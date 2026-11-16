@@ -22,7 +22,7 @@ const LINES=[
    M({name:'Spark 1.5',size:'12.3M',params:12.32,layers:8,date:'2026-08-25',hf:'Loom-Spark-1.5',what:'The second Spark.',specs:[['Parameters','12,318,720']],care:['laptop','phone','mit']}),
    M({name:'Spark 1.8',size:'18.9M',params:18.85,layers:12,date:'2026-08-27',hf:'Loom-Spark-1.8',what:'The last of the first Sparks.',specs:[['Parameters','18,850,496']],care:['laptop','phone','mit']}),
    M({name:'Spark 2',size:'19.9M',params:19.87,layers:12,date:'2026-09-03',hf:'Loom-Spark-2',what:'Twelve layers, trained in an hour.',specs:[['Parameters','19,867,008'],['Shape','12 layers × 384']],care:['laptop','phone','mit']}),
-   M({name:'Spark 3',size:'12.2M',params:12.2,layers:20,date:'2026-09-11',hf:'Loom-Spark-3',what:'A tiny searcher that knows when to look things up.',specs:[['Parameters','12,200,192'],['Shape','20 layers × 256'],['Honesty test','120 / 133']],care:['laptop','phone','mit']}),
+   M({demo:'loom-spark-3-f16.gguf',demoMB:24.6,name:'Spark 3',size:'12.2M',params:12.2,layers:20,date:'2026-09-11',hf:'Loom-Spark-3',what:'A tiny searcher that knows when to look things up.',specs:[['Parameters','12,200,192'],['Shape','20 layers × 256'],['Honesty test','120 / 133']],care:['laptop','phone','mit']}),
    M({name:'Spark 3.2',size:'22.8M',params:22.83,layers:20,date:'2026-10-01',hf:'Loom-Spark-3.2',what:'A small searcher that reads one sentence well.',specs:[['Parameters','22,827,840'],['Shape','20 layers × 320'],['Context','2,048 tokens'],['Honesty test','122 / 133']],care:['laptop','phone','offline','mit']}),
    M({name:'Spark 4.5 XS',size:'17.8M',params:17.77,layers:18,status:'Coming soon',what:'A tiny Spark for short reading and choosing tools.',specs:[['Parameters','17,769,728'],['Shape','18 layers × 256']],care:['laptop','phone','offline','mit']}),
    M({name:'Spark 4.5',size:'38.8M',params:38.81,layers:8,status:'Coming soon',what:'Reads short text you give it, calls tools, and makes small decisions.',specs:[['Parameters','38,806,016'],['Shape','First 8 layers of Crucible 4.5']],care:['laptop','phone','tools','mit']}),
@@ -31,7 +31,7 @@ const LINES=[
    M({name:'Spark 1.5 Flash',size:'1.4M',params:1.35,layers:8,date:'2026-08-28',hf:'Loom-Spark-1.5-Flash',what:'The first Flash.',specs:[['Parameters','1,350,400']],care:['phone','offline','mit']}),
    M({name:'Spark 1.8 Flash',size:'2.6M',params:2.62,layers:8,date:'2026-08-28',hf:'Loom-Spark-1.8-Flash',what:'Spark 1.8, shrunk.',specs:[['Parameters','2,615,424']],care:['phone','offline','mit']}),
    M({name:'Weave 2 Flash',size:'19.9M',params:19.87,layers:12,date:'2026-09-03',hf:'Loom-Weave-2-Flash',what:'Weave 2, shrunk.',specs:[['Parameters','19,867,008']],care:['laptop','phone','mit']}),
-   M({name:'Tapestry 3 Flash',size:'7.2M',params:7.18,layers:20,date:'2026-09-10',hf:'Loom-Tapestry-3-Flash',what:'Full depth, narrow width.',specs:[['Parameters','7,184,064'],['Shape','20 layers × 192'],['Honesty test','112 / 133']],care:['laptop','phone','mit']}),
+   M({demo:'loom-tapestry-3-flash-f16.gguf',demoMB:14.5,name:'Tapestry 3 Flash',size:'7.2M',params:7.18,layers:20,date:'2026-09-10',hf:'Loom-Tapestry-3-Flash',what:'Full depth, narrow width.',specs:[['Parameters','7,184,064'],['Shape','20 layers × 192'],['Honesty test','112 / 133']],care:['laptop','phone','mit']}),
    M({name:'Spark 3 Flash',size:'7.2M',params:7.18,layers:20,date:'2026-09-12',hf:'Loom-Spark-3-Flash',what:'Spark 3 in a third of the size.',specs:[['Parameters','7,184,064'],['Honesty test','119 / 133']],care:['laptop','phone','mit']}),
    M({name:'Loom 4.5 Flash',size:'10.9M',params:10.89,layers:12,status:'Coming soon',what:'Quick decisions, routing and short replies.',specs:[['Parameters','10,885,376'],['Shape','12 layers × 256'],['Made','Taught by Crucible 4.5']],care:['laptop','phone','offline','mit']})]},
  {id:'swift',name:'Swift',about:'Trained in minutes.',models:[
@@ -42,10 +42,10 @@ const LINES=[
  {id:'planck',name:'Planck',about:'Under two megabytes. For decisions, not paragraphs.',models:[
    M({name:'Planck 300K',size:'314K',params:0.31,layers:6,date:'2026-11-01',hf:'Loom-Planck-300k',what:'Our smallest Loom.',specs:[['Parameters','313,920']],care:['phone','offline','mit']}),
    M({name:'Planck 600K',size:'586K',params:0.59,layers:6,date:'2026-11-01',hf:'Loom-Planck-600k',what:'The middle Planck.',specs:[['Parameters','586,176']],care:['phone','offline','mit']}),
-   M({name:'Planck 1.2M',size:'1.2M',params:1.19,layers:6,date:'2026-11-01',hf:'Loom-Planck-1.2m',what:'The largest Planck.',specs:[['Parameters','1,186,912']],care:['phone','offline','mit']})]},
+   M({demo:'loom-planck-1.2m-q8_0.gguf',demoMB:1.3,name:'Planck 1.2M',size:'1.2M',params:1.19,layers:6,date:'2026-11-01',hf:'Loom-Planck-1.2m',what:'The largest Planck.',specs:[['Parameters','1,186,912']],care:['phone','offline','mit']})]},
  {id:'tools',name:'Tools',about:'Tiny single-job models for inside an app.',models:[
-   M({name:'Router 1',size:'1.4M',params:1.44,layers:4,date:'2026-09-02',hf:'Loom-Router-1',what:'Reads a request and picks the tool, in one token.',specs:[['Parameters','1,435,040']],care:['phone','offline','mit']}),
-   M({name:'Atom',size:'22K',params:0.022,layers:4,date:'2026-09-03',hf:'Loom-Atom',what:'Decides whether a request needs a tool at all.',specs:[['Parameters','22,392']],care:['phone','offline','mit']})]}
+   M({demo:'loom-router-1-f16.gguf',demoMB:2.9,demoMode:'route',name:'Router 1',size:'1.4M',params:1.44,layers:4,date:'2026-09-02',hf:'Loom-Router-1',what:'Reads a request and picks the tool, in one token.',specs:[['Parameters','1,435,040']],care:['phone','offline','mit']}),
+   M({demo:'loom-atom-f16.gguf',demoMB:0.06,demoMode:'gate',name:'Atom',size:'22K',params:0.022,layers:4,date:'2026-09-03',hf:'Loom-Atom',what:'Decides whether a request needs a tool at all.',specs:[['Parameters','22,392']],care:['phone','offline','mit']})]}
 ];
 // GGUF files on Hugging Face (checked 2026-11-16) and moments worth marking on the timeline
 const FILES={'Loom-Spark':['F32'],'Loom-Spark-1.5':['F32'],'Loom-Spark-1.8':['F32'],'Loom-Spark-1.5-Flash':['F32'],'Loom-Spark-1.8-Flash':['F32'],'Loom-Weave-2':['F16','Q8_0'],

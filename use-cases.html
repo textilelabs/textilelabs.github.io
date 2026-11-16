@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Use cases · Textile Labs</title>
+<meta name="description" content="What each Loom is good for, which one to pick, and exactly how to use it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@144,900,100&family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+.uc{display:grid;grid-template-columns:250px minmax(0,1fr);gap:46px;padding:20px 5vw 40px;align-items:start;max-width:1320px}
+/* the job index: a strip of tags down a thread */
+.index{position:sticky;top:20px;padding:6px 0 6px 22px}
+.index::before{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:rgba(181,55,44,.25)}
+.index h2{font:400 15px var(--sans);font-weight:600;margin:0 0 12px;opacity:.7}
+.index a{position:relative;display:block;padding:7px 0 7px 4px;font:400 17px/1.25 var(--serif);opacity:.6;transition:opacity .2s,transform .3s}
+.index a::before{content:"";position:absolute;left:-20px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--paper);box-shadow:0 0 0 2px rgba(181,55,44,.35);transition:background .2s,box-shadow .2s}
+.index a:hover{opacity:1;transform:translateX(3px)}
+.index a[aria-current]{opacity:1}
+.index a[aria-current]::before{background:var(--thread);box-shadow:0 0 0 2px var(--thread)}
+/* each job: a pattern sheet */
+.job{position:relative;background:#FFFDF8;border-radius:4px;box-shadow:0 24px 46px -32px rgba(29,40,71,.6);margin:0 0 40px;overflow:hidden;scroll-margin-top:20px;opacity:0;transform:translateY(14px);transition:opacity .6s,transform .7s cubic-bezier(.2,.7,.2,1)}
+.job.in{opacity:1;transform:none}
+.job canvas.band{display:block;width:100%;height:20px}
+.job .inner{padding:28px 34px 30px}
+.job h2{font:900 clamp(30px,3vw,42px)/1.05 var(--display);font-variation-settings:"SOFT" 100;margin:0 0 8px}
+.job .sum{margin:0 0 22px;font-size:18px;max-width:62ch}
+.job h3{font:600 14px var(--sans);margin:0 0 10px;opacity:.75}
+.picks{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 26px}
+.pick{display:grid;grid-template-columns:46px auto;gap:10px;align-items:center;border:1.5px solid rgba(29,40,71,.18);border-radius:4px;padding:6px 14px 6px 6px;background:#fff;cursor:pointer;text-align:left;transition:border-color .2s,transform .3s cubic-bezier(.2,.8,.2,1.3)}
+.pick:hover,.pick:focus-visible{border-color:var(--thread);transform:translateY(-2px)}
+.pick img,.pick canvas{width:46px;height:46px;border-radius:3px;object-fit:cover;background:#FBF5EA;display:block}
+.pick b{display:block;font:400 17px/1.15 var(--serif)}.pick small{font-size:12px;opacity:.75}
+.pick .best{display:inline-block;margin-left:6px;font:600 11px var(--sans);color:var(--thread)}
+.how{border:1px solid rgba(29,40,71,.16);border-radius:4px;margin:0 0 24px}
+.how [role=tablist]{display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(29,40,71,.14)}
+.how [role=tab]{border:0;background:none;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;opacity:.6;border-bottom:2px solid transparent;margin-bottom:-1px}
+.how [role=tab][aria-selected=true]{opacity:1;border-color:var(--thread)}
+.how [role=tabpanel]{padding:14px 16px 16px}
+.how ol{margin:0;padding-left:20px}.how li{margin:0 0 8px}
+.how pre{position:relative;margin:8px 0 0;background:#F6EFE3;border-radius:3px;padding:10px 64px 10px 12px;overflow-x:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+.how pre button{position:absolute;right:8px;top:8px;border:1px solid rgba(29,40,71,.3);background:#fff;border-radius:3px;font:12px var(--sans);padding:2px 8px;cursor:pointer}
+.how a{border-bottom:1.5px solid var(--thread)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:0 0 6px}
+.pair ul{list-style:none;margin:0;padding:0}
+.pair li{position:relative;padding:6px 0 6px 26px;border-top:1px dashed rgba(29,40,71,.2);font-size:15.5px}
+.pair .good li::before{content:"";position:absolute;left:2px;top:13px;width:12px;height:7px;border-left:2.5px solid #4E7A5A;border-bottom:2.5px solid #4E7A5A;transform:rotate(-45deg)}
+.pair .careful li::before{content:"";position:absolute;left:4px;top:11px;width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 2px var(--thread)}
+.job .cta{display:flex;gap:24px;margin-top:22px;font-weight:600}
+.job .cta a{border-bottom:2px solid var(--thread);padding-bottom:3px}
+.job .cta a.quiet{border-color:rgba(29,40,71,.35)}
+.job.next{background:var(--night);color:#EDE2D2}
+.job.next .pick{background:rgba(255,255,255,.06);border-color:rgba(237,226,210,.25);color:#EDE2D2}
+.job.next h3{opacity:.8}
+@media (max-width:900px){.uc{grid-template-columns:1fr}.index{position:static;display:flex;flex-wrap:wrap;gap:6px 16px;padding-left:0}.index::before,.index a::before{display:none}.index h2{width:100%}.pair{grid-template-columns:1fr}.job .inner{padding:22px 20px 24px}}
+@media (prefers-reduced-motion:reduce){.job{opacity:1;transform:none}}
+</style>
+</head>
+<body data-page="usecases" data-sheet>
+<div data-nav></div>
+<main id="main">
+<header class="pageHead"><h1 data-title data-style="sketch">Use cases</h1><p>What each Loom is good for, which one to pick, and exactly how to use it. Every limit listed here comes from our own tests.</p></header>
+<div class="uc"><nav class="index" id="index" aria-label="Jobs"><h2>Pick a job</h2></nav><div id="jobs"></div></div>
+</main>
+<div data-footer></div>
+<script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
+<script>
+const M=s=>TLDATA.bySlug(s);
+const ol=a=>'<ol>'+a.map(x=>'<li>'+x+'</li>').join('')+'</ol>';
+const code=c=>'<pre><code>'+c.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</code><button type="button" data-copy>Copy</button></pre>';
+const JOBS=[
+ {id:'assistant',title:'A private assistant on your device',sum:'Short, honest answers that never leave your laptop or phone. Good for everyday questions, drafting a quick reply, or a helper that knows its limits.',
+  picks:['weave-4','swift-mini-2','planck-1-2m'],best:'weave-4',
+  how:[['In your browser',ol(['Open <a href="try.html?model=weave-4">Try a model</a> and pick Weave 4.','Press <b>Load the model</b>. It downloads once (44 MB) and stays cached.','Ask away. Nothing you type is sent anywhere.'])],
+       ['Ollama',ol(['Install <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a>.','Run this in a terminal:'])+code('ollama run hf.co/textilelabs/Loom-Weave-4:Q4_K_M')],
+       ['On your phone',ol(['Install PocketPal (or another app that runs GGUF models).','Search Hugging Face for <b>textilelabs</b> and download <b>Loom-Weave-4</b>, the Q4_K_M file (44 MB).','Start a chat. The chat template is built in, so there is nothing to set up.'])]],
+  good:['Short answers in plain English','Says when it doesn\'t know, or when a question is about you','Keeps its identity and ignores instructions hidden in pasted text','Works completely offline once downloaded'],
+  careful:['It knows few facts by itself. Check anything important','Not for long documents, maths beyond simple sums, or code','Replies are short: one or two sentences']},
+ {id:'read',title:'Answer questions about text you paste',sum:'Paste a short passage, then ask about it. The model answers from your text, not from memory.',
+  picks:['weave-4','crucible-preview','tapestry-3'],best:'weave-4',
+  how:[['In your browser',ol(['Open <a href="try.html?model=weave-4">Try a model</a> with Weave 4.','Type <b>Text:</b> followed by your passage, then your question on a new line.','Keep the passage to a few paragraphs.'])+code('Text: The bridge was built in 1891 by Ada Lowe.\nWho built the bridge?')],
+       ['Ollama',ol(['Crucible Preview is our best reader of short passages. Run it with:'])+code('ollama run hf.co/textilelabs/Loom-Crucible-Preview')+ol(['Paste your passage and your question in one message.'])],
+       ['In your app',ol(['Put the passage in the user message, then the question.','Use temperature 0 and repetition penalty 1.0.','Check the answer against the passage before you show it.'])]],
+  good:['Short passages: a few paragraphs','Pulls a name, date or number out of the text','Says when the answer isn\'t in what you gave it'],
+  careful:['Long documents: Crucible Preview reads 1,024 tokens at a time','It sometimes repeats a sentence instead of answering precisely','Always check the answer for anything important']},
+ {id:'search',title:'A search assistant',sum:'The model decides when it needs to look something up and writes the search. A small script runs the search on Wikipedia and hands back one sentence for the model to answer from.',
+  picks:['tapestry-3','weave-4','spark-3-2'],best:'tapestry-3',
+  how:[['With the harness',ol(['Install <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> and pull the model:'])+code('ollama pull hf.co/textilelabs/Loom-Tapestry-3')+ol(['Download <b>harness.py</b> from the model\'s <a href="https://huggingface.co/textilelabs/Loom-Tapestry-3" target="_blank" rel="noopener">Hugging Face page</a>. It needs only Python, no extra packages and no API key.','Ask a question:'])+code('python3 harness.py "what is the capital of peru"\npython3 harness.py --show "who wrote hamlet"   # see what it searched')],
+       ['In your app',ol(['When the model writes <code>&lt;lookup&gt;query&lt;/lookup&gt;</code>, run your own search.','Give back one sentence as the result, not a whole page: one sentence doubled the final score.','Never pass back a failed search as a result; the model will answer from the error.'])]],
+  good:['Knows when a question needs a lookup','Writes short, sensible search queries','Answers from the sentence it is given, and says where it came from'],
+  careful:['It answers about half of real questions correctly end to end (Tapestry 3: 12 of 20)','It depends on the search finding the right sentence','Wikipedia only out of the box; swap in your own search if you need to']},
+ {id:'route',title:'Route requests inside an app',sum:'Give Router 1 a user\'s message and it names the tool that should handle it, in a single token: search, calculator, weather, reminder, email and 12 more.',
+  picks:['router-1'],best:'router-1',
+  how:[['In your browser',ol(['Open <a href="try.html?model=router-1">Try a model</a> and pick Router 1 (2.9 MB).','Type a request and see which route it picks.'])],
+       ['Ollama',code('ollama run hf.co/textilelabs/Loom-Router-1 "remind me to call mum at 6"\n# <route:reminder>')],
+       ['In your app',ol(['Send exactly this prompt, with no trailing space:'])+code('<user>\n{message}\n<|eot|>\n<loom>\n')+ol(['Read the one token it returns, like <code>&lt;route:weather&gt;</code>, and pass the user\'s original text to that tool.','<code>answer</code> and <code>clarify</code> end an agent loop; cap the number of steps anyway.'])]],
+  good:['86.5% right on real, unseen requests across 17 routes','73.8% on SNIPS, a dataset it never saw','2.9 MB, and answers on a CPU in milliseconds','Never rewrites your text, so nothing gets copied wrong'],
+  careful:['Weak at spotting ambiguous requests (clarify: 12%)','Weak at "only you would know this" questions (unknowable: 7%)','One label only: it doesn\'t extract details for the tool']},
+ {id:'gate',title:'Decide whether a request needs a tool',sum:'Atom answers one question before anything else runs: does this need a tool at all? If not, you skip the search, the router and maybe the big model.',
+  picks:['atom'],best:'atom',
+  how:[['In your browser',ol(['Open <a href="try.html?model=atom">Try a model</a> and pick Atom. It is 57 KB.','Type a request: it answers <b>Needs a tool</b> or <b>No tool needed</b>.'])],
+       ['Ollama',code('ollama run hf.co/textilelabs/Loom-Atom "whats the weather in leeds"\n# <tool>')],
+       ['In your app',ol(['Send the same prompt format as Router 1:'])+code('<user>\n{message}\n<|eot|>\n<loom>\n')+ol(['It returns <code>&lt;tool&gt;</code> or <code>&lt;none&gt;</code>. On <code>&lt;tool&gt;</code>, hand over to Router 1 to pick which one.'])]],
+  good:['96% right on unseen requests, and 96.6% on SNIPS','22,392 parameters: small enough to embed in an app','Runs in well under a millisecond'],
+  careful:['Questions about the user personally ("what\'s my sister\'s name") are its weak spot: it may say a tool is needed']},
+ {id:'tiny',title:'Tiny helpers for phones and small devices',sum:'Models under two megabytes that chat briefly, say what they can\'t know, and write calculator, date and search calls for your app to run.',
+  picks:['planck-1-2m','planck-600k','planck-300k','swift-micro-2'],best:'planck-1-2m',
+  how:[['In your browser',ol(['Open <a href="try.html?model=planck-1-2m">Try a model</a> and pick Planck 1.2M (1.3 MB).'])],
+       ['Ollama',code('ollama run hf.co/textilelabs/Loom-Planck-1.2m:Q4_K_M')],
+       ['In your app',ol(['Use the Loom chat format, with tools on if you want it to write calls:'])+code('<tools:on>\n<user>\nwhat\'s 15% of 840?\n<|eot|>\n<loom>\n')+ol(['Run the call it writes, like <code>&lt;tool&gt;calc 15 * 840 / 100&lt;/tool&gt;</code>, and show the result.','The Hugging Face repo includes <b>harness.py</b>, which runs search, calculator and date calls for you.'])]],
+  good:['Declines facts it can\'t check: 20 of 20 for Planck 1.2M','Says who it is and what it can\'t know about you','Under 1 MB on a phone (Planck 1.2M at Q4_K_M)'],
+  careful:['Its calculator calls are right about a third of the time: read the call before trusting it','It cannot extract details or redact personal data','Ignore "(sure)": it is not a reliable confidence signal at this size']},
+ {id:'next',title:'Coming with the 4.5 family',sum:'The next Looms are built for the jobs above that today\'s models find hardest: reading longer text you paste, picking from a list of tools you define, and following small rules from a few examples.',
+  picks:['crucible-4-5','weave-4-5','spark-4-5','loom-4-5-flash'],next:true,
+  how:[['What to expect',ol(['Seven sizes, from 11 to 130 million parameters, all from one training run.','The same chat format, so anything built for today\'s Looms will work.','Bars for reading, tool use and honesty are set before training; we will publish the misses too.'])+'<p style="margin:10px 0 0"><a href="research.html#next">Read the plan on our research page</a></p>']],
+  good:[],careful:[]}
+];
+const idx=document.getElementById('index'), box=document.getElementById('jobs');
+JOBS.forEach((j,n)=>{
+  idx.insertAdjacentHTML('beforeend','<a href="#'+j.id+'">'+j.title+'</a>');
+  const el=document.createElement('section'); el.className='job'+(j.next?' next':''); el.id=j.id; el.setAttribute('aria-labelledby','t-'+j.id);
+  const lead=M(j.picks[0]);
+  el.innerHTML='<canvas class="band" aria-hidden="true"></canvas><div class="inner"><h2 id="t-'+j.id+'">'+j.title+'</h2><p class="sum">'+j.sum+'</p>'+
+    '<h3>'+(j.next?'The family':'Best Looms for this')+'</h3><div class="picks">'+j.picks.map(s=>{ const m=M(s); return '<button class="pick" data-slug="'+s+'">'+(m.logo?'<img src="'+m.logo+'" alt="">':'<canvas></canvas>')+'<span><b>'+m.name+(s===j.best?'<span class="best">Best pick</span>':'')+'</b><small>'+m.size+' parameters</small></span></button>'; }).join('')+'</div>'+
+    '<h3>How to use it</h3><div class="how"><div role="tablist">'+j.how.map((h,k)=>'<button role="tab" aria-selected="'+(k===0)+'" id="tab-'+j.id+k+'" aria-controls="pan-'+j.id+k+'">'+h[0]+'</button>').join('')+'</div>'+
+    j.how.map((h,k)=>'<div role="tabpanel" id="pan-'+j.id+k+'" aria-labelledby="tab-'+j.id+k+'"'+(k?' hidden':'')+'>'+h[1]+'</div>').join('')+'</div>'+
+    (j.good.length?'<div class="pair"><div class="good"><h3>Works well</h3><ul>'+j.good.map(x=>'<li>'+x+'</li>').join('')+'</ul></div><div class="careful"><h3>Watch out</h3><ul>'+j.careful.map(x=>'<li>'+x+'</li>').join('')+'</ul></div></div>':'')+
+    (lead&&lead.demo&&!j.next?'<div class="cta"><a href="try.html?model='+lead.slug+'">Try '+lead.name+' in your browser</a>'+(lead.url?'<a class="quiet" href="'+lead.url+'" target="_blank" rel="noopener">Hugging Face ↗</a>':'')+'</div>':'')+'</div>';
+  box.appendChild(el);
+  requestAnimationFrame(()=>{ const mix=TLDATA.MIX[lead.line]; TL.paintSwatch(el.querySelector('canvas.band'),{mix,cell:8,seed:n*7+3,ground:mix.ground||'#F1DFCB'});
+    el.querySelectorAll('.pick canvas').forEach(c=>{ const m=M(c.closest('.pick').dataset.slug); TL.paintSwatch(c,{mix:TLDATA.MIX[m.line],cell:8,seed:m.name.length*3,ground:'#F1DFCB',w:46,h:46}); }); });
+});
+box.addEventListener('click',async e=>{
+  const p=e.target.closest('.pick'); if(p){ openSheet(M(p.dataset.slug)); return; }
+  const t=e.target.closest('[role=tab]'); if(t){ const how=t.closest('.how'); how.querySelectorAll('[role=tab]').forEach(x=>x.setAttribute('aria-selected',String(x===t))); how.querySelectorAll('[role=tabpanel]').forEach(pn=>pn.hidden=pn.id!==t.getAttribute('aria-controls')); return; }
+  const c=e.target.closest('[data-copy]'); if(c){ const txt=c.previousElementSibling.textContent; try{ await navigator.clipboard.writeText(txt); }catch(_){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } c.textContent='Copied'; setTimeout(()=>c.textContent='Copy',1400); }
+});
+function update(){ document.querySelectorAll('.job:not(.in)').forEach(e=>{ if(e.getBoundingClientRect().top<innerHeight*0.9) e.classList.add('in'); });
+  let curId=JOBS[0].id; JOBS.forEach(j=>{ const el=document.getElementById(j.id); if(el.getBoundingClientRect().top<innerHeight*0.35) curId=j.id; });
+  idx.querySelectorAll('a').forEach(a=>{ if(a.getAttribute('href')==='#'+curId) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current'); }); }
+addEventListener('scroll',update,{passive:true}); update(); setTimeout(update,300);
+if(location.hash){ const el=document.querySelector(location.hash); el&&setTimeout(()=>{ el.classList.add('in'); el.scrollIntoView(); },60); }
+</script>
+</body>
+</html>

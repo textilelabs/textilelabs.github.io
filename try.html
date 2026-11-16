@@ -24,6 +24,12 @@
 .tagBtn b{display:block;font:400 19px/1.1 var(--serif)}.tagBtn small{font-size:12px;opacity:.75}
 .tagBtn:hover{transform:rotate(-1.5deg) translateX(4px)}
 .tagBtn[aria-pressed=true]{transform:translateX(8px);box-shadow:0 0 0 2px var(--thread),0 12px 20px -10px rgba(0,0,0,.7)}
+.rack .group{position:relative;font:400 17px var(--serif);margin:18px 0 10px;opacity:.85}
+.rack .groupNote{position:relative;font-size:13px;opacity:.65;margin:-6px 0 12px}
+.msg.verdict{align-self:flex-start;background:#FFFDF8;border:1.5px solid rgba(29,40,71,.2);border-left:4px solid var(--thread);border-radius:3px;padding:10px 16px;max-width:90%}
+.msg.verdict b{display:block;font:400 26px/1.1 var(--serif)}
+.msg.verdict code{font:12px ui-monospace,Menlo,monospace;opacity:.6}
+.msg.verdict span{display:block;font-size:14px;opacity:.85;margin-top:2px}
 .rack .fine{position:relative;font-size:13px;line-height:1.5;opacity:.7;margin:8px 0 0}
 .rack .fine a{border-bottom:1px solid rgba(237,226,210,.5)}
 /* the chat */
@@ -55,8 +61,10 @@ form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,
 <main id="main">
 <header class="pageHead"><h1 data-title data-style="spark">Try a model</h1><p>These Looms run inside your browser. The model downloads once from Hugging Face, then everything happens on your device: nothing you type is sent anywhere.</p></header>
 <div class="tryGrid">
-  <aside class="rack" aria-label="Choose a model"><h2>Pick a Loom</h2><p class="sub">Each one runs on this device.</p><div id="opts"></div>
-    <p class="fine">They are small models. They will get things wrong, and they are built to say so when they don't know. Weave 4 is the most capable; the Swift models are tiny experiments. Every other Loom can be run on your computer: see its label on the <a href="models.html">models page</a>.</p></aside>
+  <aside class="rack" aria-label="Choose a model"><h2>Pick a Loom</h2><p class="sub">Each one runs on this device.</p>
+    <h3 class="group">Chat</h3><div id="optsChat"></div>
+    <h3 class="group">Decisions</h3><p class="groupNote">These answer with one label, for use inside an app.</p><div id="optsDec"></div>
+    <p class="fine">They are small models. They will get things wrong, and they are built to say so when they don't know. Weave 4 is the most capable chat model here. Every other Loom can be run on your computer: see its label on the <a href="models.html">models page</a>, or find the right one on <a href="use-cases.html">use cases</a>.</p></aside>
   <section class="chat" aria-label="Chat">
     <div class="chatHead"><div><b id="cName"></b><small id="cInfo"></small></div><button class="btn" id="loadBtn">Load the model</button></div>
     <div class="progress" id="prog" aria-hidden="true"><i></i></div>
@@ -70,24 +78,35 @@ form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,
 <script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
 <script type="module">
 const WL='https://cdn.jsdelivr.net/npm/@wllama/wllama@3.8.1';
-const demos=TLDATA.all().filter(m=>m.demo);
+const order=['weave-4','spark-3','tapestry-3-flash','swift-mini-2','planck-1-2m','swift-micro-2','router-1','atom'];
+const demos=TLDATA.all().filter(m=>m.demo).sort((x,y)=>order.indexOf(x.slug)-order.indexOf(y.slug));
 let cur=TLDATA.bySlug(new URLSearchParams(location.search).get('model')); if(!cur||!cur.demo) cur=demos.find(m=>m.slug==='weave-4')||demos[0];
 const $=id=>document.getElementById(id), log=$('log'), q=$('q'), send=$('send'), stop=$('stop'), loadBtn=$('loadBtn'), prog=$('prog');
 let wllama=null, loaded=null, history=[], abort=null;
+const ROUTES={search:['Search','Look it up on the web'],calc:['Calculator','Work out a sum'],time:['Time','Check the time or date'],weather:['Weather','Check the weather'],calendar:['Calendar','Look at or change the calendar'],
+  reminder:['Reminder','Set a reminder'],email:['Email','Read or send email'],notes:['Notes','Save or find a note'],maps:['Maps','Find a place or directions'],translate:['Translate','Translate some text'],convert:['Convert','Convert units or currency'],
+  define:['Define','Look up a word'],music:['Music','Play or find music'],answer:['Answer','No tool needed: just answer'],clarify:['Clarify','Ambiguous: ask what you meant'],unknowable:['Unknowable','Only you would know this; no tool can help'],refuse:['Refuse','This shouldn\'t be done']};
+const EX={chat:['Who are you?','How big are you?','Text: The bridge was built in 1891 by Ada Lowe. Who built the bridge?','What is my mother\'s name?'],
+  route:['remind me to call mum at 6','whats the weather in leeds tomorrow','play some jazz','whats my sisters name','convert 30 miles to km'],
+  gate:['whats the weather in leeds','who are you','convert 30 miles to km','i had a rough day']};
+const mode=m=>m.demoMode||'chat';
 demos.forEach(m=>{ const b=document.createElement('button'); b.className='tagBtn'; b.dataset.slug=m.slug;
-  b.innerHTML=(m.logo?'<img class="lg" src="'+m.logo+'" alt="">':'<canvas></canvas>')+'<span><b>'+m.name+'</b><small>'+m.size+' parameters, '+m.demoMB+' MB</small></span>'; $('opts').appendChild(b);
+  b.innerHTML=(m.logo?'<img class="lg" src="'+m.logo+'" alt="">':'<canvas></canvas>')+'<span><b>'+m.name+'</b><small>'+m.size+' parameters, '+(m.demoMB<1?Math.round(m.demoMB*1000)+' KB':m.demoMB+' MB')+'</small></span>';
+  $(mode(m)==='chat'?'optsChat':'optsDec').appendChild(b);
   if(!m.logo) requestAnimationFrame(()=>TL.paintSwatch(b.querySelector('canvas'),{mix:TLDATA.MIX[m.line],cell:9,seed:m.name.length*7,ground:'#F1DFCB',w:52,h:52}));
   b.onclick=()=>select(m); });
-const EXAMPLES=['Who are you?','How big are you?','Text: The bridge was built in 1891 by Ada Lowe. Who built the bridge?','What is my mother\'s name?'];
-$('examples').innerHTML=EXAMPLES.map(e=>'<button type="button">'+e.replace(/</g,'&lt;')+'</button>').join('');
-$('examples').querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{ q.value=EXAMPLES[i]; if(!q.disabled) q.focus(); });
+function examples(m){ const ex=EX[mode(m)]; $('examples').innerHTML=ex.map(e=>'<button type="button">'+e.replace(/</g,'&lt;')+'</button>').join('');
+  $('examples').querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{ q.value=ex[i]; if(!q.disabled) q.focus(); }); }
 function add(cls,text){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
 function setReady(on){ q.disabled=!on; send.disabled=!on; }
+const size=m=>m.demoMB<1?Math.round(m.demoMB*1000)+' KB':m.demoMB+' MB';
+const intro={chat:'Ask it something.',route:'Type a request. Router 1 answers with one label: the tool that should handle it.',gate:'Type a request. Atom answers one question: does this need a tool?'};
 function select(m){ cur=m; document.querySelectorAll('.tagBtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.slug===m.slug)));
-  $('cName').textContent='Loom '+m.name; $('cInfo').textContent=m.size+' parameters, '+m.demoMB+' MB download';
-  history=[]; log.innerHTML='';
-  if(loaded===m){ loadBtn.hidden=true; setReady(true); add('sys','Ready. Ask '+m.name+' something.'); }
-  else { loadBtn.hidden=false; loadBtn.disabled=false; loadBtn.textContent='Load the model'; setReady(false); add('sys','Load '+m.name+' to start. It stays cached in your browser, so next time it opens straight away.'); }
+  $('cName').textContent='Loom '+m.name; $('cInfo').textContent=m.size+' parameters, '+size(m)+' download';
+  q.placeholder=mode(m)==='chat'?'Ask something, or paste a short text and ask about it':'Type a request, like "remind me to call mum at 6"';
+  history=[]; log.innerHTML=''; examples(m);
+  if(loaded===m){ loadBtn.hidden=true; setReady(true); add('sys','Ready. '+intro[mode(m)]); }
+  else { loadBtn.hidden=false; loadBtn.disabled=false; loadBtn.textContent='Load the model'; setReady(false); add('sys','Load '+m.name+' to start. '+intro[mode(m)]+' It stays cached in your browser, so next time it opens straight away.'); }
   try{ const u=new URL(location); u.searchParams.set('model',m.slug); window.history.replaceState(null,'',u); }catch(_){} }
 async function load(){
   loadBtn.disabled=true; loadBtn.textContent='Loading…'; prog.style.visibility='visible'; prog.firstChild.style.width='0';
@@ -95,21 +114,31 @@ async function load(){
     const {Wllama}=await import(WL+'/esm/index.js');
     if(wllama){ try{ await wllama.exit(); }catch(_){} }
     wllama=new Wllama({default:WL+'/src/wasm/wllama.wasm'},{suppressNativeLog:true});
-    await wllama.loadModelFromHF({repo:'textilelabs/'+cur.hf,file:cur.demo},{n_ctx:2048,progressCallback:({loaded:l,total:t})=>{ prog.firstChild.style.width=(t?100*l/t:0)+'%'; }});
-    loaded=cur; loadBtn.hidden=true; prog.style.visibility='hidden'; setReady(true); log.innerHTML=''; add('sys','Ready. '+cur.name+' is running on your device.'); q.focus();
+    await wllama.loadModelFromHF({repo:'textilelabs/'+cur.hf,file:cur.demo},{n_ctx:mode(cur)==='chat'?2048:256,progressCallback:({loaded:l,total:t})=>{ prog.firstChild.style.width=(t?100*l/t:0)+'%'; }});
+    loaded=cur; loadBtn.hidden=true; prog.style.visibility='hidden'; setReady(true); log.innerHTML=''; add('sys','Ready. '+cur.name+' is running on your device. '+intro[mode(cur)]); q.focus();
   }catch(e){ console.error(e); prog.style.visibility='hidden'; loadBtn.disabled=false; loadBtn.textContent='Try again';
     add('sys','The model could not load: '+(e&&e.message?e.message:'unknown error')+'. Check your connection and try again, or use a desktop browser.'); }
 }
 loadBtn.onclick=load;
-// the Loom chat format, exactly as trained (the same template that is built into the GGUF)
+// the Loom chat format, exactly as trained (the same template that is built into the GGUF files)
 function prompt(){ let s='<tools:off>\n'; for(const t of history){ s+= t.role==='user' ? '<user>\n'+t.content+'\n<|eot|>\n' : '<loom>\n'+t.content+'<|eot|>\n'; } return s+'<loom>\n'; }
 function render(el,raw){ const m=raw.match(/^<think>([\s\S]*?)(<\/think>|$)\s*([\s\S]*)$/); el.textContent=''; if(m){ const th=document.createElement('span'); th.className='think'; th.textContent='Thinking: '+m[1].trim(); el.appendChild(th); el.appendChild(document.createTextNode(m[3])); } else el.textContent=raw; }
-$('ask').onsubmit=async e=>{ e.preventDefault(); const text=q.value.trim(); if(!text||!loaded) return; q.value=''; add('u',text); history.push({role:'user',content:text});
+async function decide(text){ // Router and Atom: one token, shown as a label
+  let raw=''; const ac=new AbortController();
+  try{ await wllama.createCompletion({prompt:'<user>\n'+text+'\n<|eot|>\n<loom>\n',max_tokens:2,temperature:0,stream:true,abortSignal:ac.signal,onData:ch=>{ raw+=(ch.choices&&ch.choices[0]&&ch.choices[0].text)||''; if(/<[^>]+>/.test(raw)) ac.abort(); }}); }catch(e){ if(e.name!=='AbortError') throw e; }
+  const tok=(raw.match(/<[^>]+>/)||[raw.trim()])[0]; const d=document.createElement('div'); d.className='msg verdict';
+  if(mode(loaded)==='route'){ const r=(tok.match(/route:(\w+)/)||[])[1]; const R=ROUTES[r]||[tok||'No answer','']; d.innerHTML='<code>'+tok.replace(/</g,'&lt;')+'</code><b>'+R[0]+'</b><span>'+R[1]+'</span>'; }
+  else { const yes=tok.includes('tool'); d.innerHTML='<code>'+tok.replace(/</g,'&lt;')+'</code><b>'+(yes?'Needs a tool':'No tool needed')+'</b><span>'+(yes?'Hand it to something that picks the tool, like Router 1.':'Answer it directly; no search or tool call.')+'</span>'; }
+  log.appendChild(d); log.scrollTop=log.scrollHeight;
+}
+$('ask').onsubmit=async e=>{ e.preventDefault(); const text=q.value.trim(); if(!text||!loaded) return; q.value=''; add('u',text);
+  if(mode(loaded)!=='chat'){ setReady(false); try{ await decide(text); }catch(err){ add('sys','Something went wrong: '+(err.message||err)); } setReady(true); q.focus(); return; }
+  history.push({role:'user',content:text});
   setReady(false); stop.hidden=false; const out=add('m',''); let raw=''; abort=new AbortController();
   try{ await wllama.createCompletion({prompt:prompt(),max_tokens:256,temperature:0,stream:true,abortSignal:abort.signal,
-      onData:ch=>{ const piece=(ch.choices&&ch.choices[0]&&(ch.choices[0].text??''))||''; raw+=piece; render(out,raw.replace(/<\|eot\|>[\s\S]*/,'')); log.scrollTop=log.scrollHeight; }});
+      onData:ch=>{ const piece=(ch.choices&&ch.choices[0]&&(ch.choices[0].text??''))||''; raw+=piece; render(out,raw.replace(/<\|eot\|>[\s\S]*/,'')); log.scrollTop=log.scrollHeight; if(raw.includes('<|eot|>')||raw.includes('\n<user>')) abort.abort(); }});
   }catch(err){ if(err&&err.name!=='AbortError') add('sys','Something went wrong while answering: '+(err.message||err)); }
-  history.push({role:'assistant',content:raw.replace(/<\|eot\|>[\s\S]*/,'').trim()}); if(history.length>12) history.splice(0,history.length-12);
+  history.push({role:'assistant',content:raw.replace(/<\|eot\|>[\s\S]*/,'').replace(/\n<user>[\s\S]*/,'').trim()}); if(history.length>12) history.splice(0,history.length-12);
   stop.hidden=true; setReady(true); q.focus(); };
 stop.onclick=()=>abort&&abort.abort();
 q.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); $('ask').requestSubmit(); } });

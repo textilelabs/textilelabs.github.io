@@ -1,6 +1,6 @@
 /* Textile Labs: the same nav, footer, painted page title and label sheet on every page. Page file names live in one place. */
 (function(){
-const PAGES={home:'index.html',models:'models.html',try:'try.html',timeline:'timeline.html',research:'research.html',about:'about.html'};
+const PAGES={home:'index.html',models:'models.html',try:'try.html',timeline:'timeline.html',research:'research.html',about:'about.html',usecases:'use-cases.html'};
 window.TLPAGES=PAGES;
 const here=document.body.dataset.page;
 const chev='<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
@@ -9,11 +9,11 @@ const MARK='<img class="mark" src="mark.png" alt="" width="34" height="34">';
 const nav=document.querySelector('[data-nav]');
 const link=(k,t)=>'<li><a href="'+(k==='news'?PAGES.home+'#news':PAGES[k])+'"'+(here===k?' aria-current="page"':'')+'>'+t+'</a></li>';
 if(nav) nav.outerHTML='<a class="skip" href="#main">Skip to content</a><nav class="nav'+(nav.dataset.extra?' '+nav.dataset.extra:'')+'" aria-label="Main"><div class="navL"><a class="brand" href="'+PAGES.home+'" aria-label="Textile Labs, home">'+MARK+'<span>Textile Labs</span></a><ul class="navSub">'+link('research','Research')+link('about','About')+'</ul></div><ul>'+
-  [['models','Models'],['try','Try a model'],['timeline','Timeline'],['news','News']].map(([k,t])=>link(k,t)).join('')+'</ul></nav>';
+  [['models','Models'],['usecases','Use cases'],['try','Try a model'],['timeline','Timeline'],['news','News']].map(([k,t])=>link(k,t)).join('')+'</ul></nav>';
 const ft=document.querySelector('[data-footer]');
 if(ft){ const L=window.TLDATA?TLDATA.LINES:[];
   ft.outerHTML='<footer class="site"><div class="f-brand">'+MARK+'Textile Labs</div><div class="f-rows">'+
-  '<details><summary>Models '+chev+'</summary><div class="inner">'+L.map(l=>'<a href="'+PAGES.models+'#'+l.id+'">'+l.name+'</a>').join('')+'</div></details>'+
+  '<details><summary>Models '+chev+'</summary><div class="inner"><a href="'+PAGES.usecases+'">Use cases</a>'+L.map(l=>'<a href="'+PAGES.models+'#'+l.id+'">'+l.name+'</a>').join('')+'</div></details>'+
   '<details><summary>Try a model '+chev+'</summary><div class="inner">'+(window.TLDATA?TLDATA.all().filter(m=>m.demo).map(m=>'<a href="'+PAGES.try+'?model='+m.slug+'">'+m.name+'</a>').join(''):'')+'</div></details>'+
   '<details><summary>Timeline '+chev+'</summary><div class="inner"><a href="'+PAGES.timeline+'">Every model in order</a><a href="'+PAGES.home+'#news">News</a></div></details>'+
   '<details><summary>The lab '+chev+'</summary><div class="inner"><a href="'+PAGES.research+'">Research</a><a href="'+PAGES.research+'#next">Upcoming releases</a><a href="'+PAGES.about+'">About Textile Labs</a><a href="'+PAGES.about+'#goals">Our goals</a></div></details>'+
