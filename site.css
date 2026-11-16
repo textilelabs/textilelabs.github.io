@@ -1,0 +1,136 @@
+/* Textile Labs: shared tokens, nav, footer, label sheet */
+:root{--paper:#F2DDC9;--ink:#1D2847;--copper:#B4683D;--sage:#ADC2AC;--thread:#B5372C;--night:#141B2F;--card:#F7EEE2;
+  --serif:Marcellus,Georgia,serif;--sans:"Hanken Grotesk",system-ui,sans-serif;--display:Fraunces,Georgia,serif}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--paper) url(paper-peach.jpg) center/cover fixed;color:var(--ink);font:400 17px/1.6 var(--sans)}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--thread);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--card);padding:8px 14px;border-radius:4px;z-index:100}.skip:focus{left:8px}
+
+.nav{display:flex;justify-content:space-between;align-items:baseline;padding:28px 5vw;position:relative;z-index:5}
+.brand{font:400 21px var(--serif);letter-spacing:.02em}
+.nav ul{display:flex;gap:34px;list-style:none;margin:0;padding:0;font-weight:500;font-size:15px}
+.nav li a{padding-bottom:3px;background:linear-gradient(var(--thread),var(--thread)) 0 100%/0 2px no-repeat;transition:background-size .35s cubic-bezier(.2,.7,.2,1)}
+.nav li a:hover,.nav li a[aria-current]{background-size:100% 2px}
+.pageHead{padding:50px 5vw 10px;max-width:900px}
+.pageHead h1{font:900 clamp(56px,7vw,104px)/0.95 var(--display);font-variation-settings:"SOFT" 100;margin:0 0 16px}
+.pageHead p{margin:0;font-size:19px;max-width:48ch}
+
+footer.site{background:var(--night);color:#E9DCCB;padding:90px 5vw 40px;display:grid;grid-template-columns:1.1fr 1.6fr 1fr;gap:5vw;margin-top:60px}
+.f-brand{font:400 clamp(30px,3.2vw,46px)/1 var(--serif)}
+.f-rows{border-top:1px solid rgba(233,220,203,.18)}
+.f-rows details{border-bottom:1px solid rgba(233,220,203,.18)}
+.f-rows summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;padding:17px 0;color:rgba(233,220,203,.62)}
+.f-rows summary::-webkit-details-marker{display:none}
+.f-rows summary:hover,.f-rows details[open] summary{color:#E9DCCB}
+.f-rows summary svg{transition:transform .25s}.f-rows details[open] summary svg{transform:rotate(180deg)}
+.f-rows .inner{padding:0 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:15px}
+.f-rows .inner a{color:rgba(233,220,203,.8)}.f-rows .inner a:hover{color:#fff}
+.f-side h4{font:500 15px var(--sans);margin:0 0 6px}
+.f-side p{margin:0 0 28px;font-size:15px;color:rgba(233,220,203,.62);max-width:30ch}
+.f-side a{display:block;font-size:15px;margin-bottom:6px}
+.f-legal{grid-column:1/-1;display:flex;justify-content:space-between;font-size:13px;color:rgba(233,220,203,.5);padding-top:40px;gap:20px;flex-wrap:wrap}
+
+/* the label sheet: shared by every page that opens a model */
+.backdrop{position:fixed;inset:0;background:rgba(20,27,47,.55);opacity:0;pointer-events:none;transition:opacity .35s;z-index:40}
+.backdrop.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;z-index:41;left:50%;top:50%;width:min(860px,92vw);max-height:92vh;overflow:auto;display:grid;grid-template-columns:280px 1fr;background:var(--card);border-radius:4px;box-shadow:0 40px 80px -30px rgba(0,0,0,.55);transform:translate(-50%,-50%) scale(.96);opacity:0;visibility:hidden;transition:opacity .3s,transform .4s cubic-bezier(.2,.7,.2,1),visibility 0s .4s}
+.sheet.on{opacity:1;transform:translate(-50%,-50%);visibility:visible;transition:opacity .3s,transform .4s cubic-bezier(.2,.7,.2,1)}
+.sheet canvas{width:280px;height:100%;min-height:420px;display:block}
+.specs{padding:30px 34px 26px}
+.specs .status{font-size:14px;font-weight:600;color:var(--thread)}
+.specs h3{font:400 38px/1.05 var(--serif);margin:4px 0 6px}
+.specs .what{margin:0 0 18px;max-width:46ch}
+.specs dl{display:grid;grid-template-columns:9rem 1fr;gap:6px 16px;margin:0 0 20px;font-size:15px}
+.specs dt{opacity:.7}.specs dd{margin:0;font-weight:500}
+.care{display:flex;gap:14px;flex-wrap:wrap;padding:12px 0;border-top:1px dashed rgba(29,40,71,.35);border-bottom:1px dashed rgba(29,40,71,.35);margin-bottom:18px}
+.care figure{margin:0;display:flex;align-items:center;gap:8px;font-size:13px}
+.care svg{width:24px;height:24px;stroke:var(--ink);fill:none;stroke-width:1.6}
+.actions{display:flex;gap:26px;font-weight:600;flex-wrap:wrap}
+.actions a{padding-bottom:3px;border-bottom:2px solid var(--thread)}
+.actions a.quiet{border-color:rgba(29,40,71,.35)}
+.soonNote{font-weight:500;opacity:.7}
+.close{position:absolute;top:12px;right:14px;background:none;border:0;font:400 28px/1 var(--sans);cursor:pointer;opacity:.65;z-index:3}
+.close:hover{opacity:1}
+
+.mock{position:fixed;right:16px;bottom:16px;z-index:60;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:10px 12px;font:500 13px var(--sans);color:#222;max-width:300px}
+.mock b{display:block;font-weight:600;margin-bottom:6px}
+.mock .opts{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.mock button{font:500 12px var(--sans);border:1px solid #ccc;background:#fafafa;border-radius:6px;padding:4px 9px;cursor:pointer}
+.mock button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+@media (max-width:760px){.nav ul{gap:16px;font-size:14px}footer.site{grid-template-columns:1fr}.sheet{grid-template-columns:1fr}.sheet canvas{width:100%;min-height:130px;height:130px}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---- brand mark: a small woven square; on hover the red thread re-threads and the warp lifts ---- */
+.brand{display:inline-flex;align-items:center;gap:10px}
+.mark{width:28px;height:28px;display:block;flex:0 0 auto;transition:transform .5s cubic-bezier(.2,.8,.2,1.3)}
+.mark rect{transform-box:fill-box;transform-origin:center}
+.mark .red{stroke-dasharray:30;stroke-dashoffset:0}
+.brand:hover .mark,.brand:focus-visible .mark{transform:rotate(-8deg) scale(1.1)}
+.brand:hover .mark .red,.brand:focus-visible .mark .red{animation:rethread .75s cubic-bezier(.6,.05,.25,1)}
+.brand:hover .mark .w,.brand:focus-visible .mark .w{animation:lift .6s ease}
+.brand:hover .mark .w1,.brand:hover .mark .w3{animation-delay:.1s}
+@keyframes rethread{from{stroke-dashoffset:30}to{stroke-dashoffset:0}}
+@keyframes lift{50%{transform:translateY(-2px)}}
+.f-brand .mark{width:36px;height:36px;display:inline-block;vertical-align:-5px;margin-right:12px}
+
+/* ---- painted page titles ---- */
+h1.painted{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.titleCanvas{display:block;margin:0 0 20px -6px;max-width:100%}
+
+/* ---- the label sheet, version 2 ---- */
+.sheet{grid-template-columns:240px 1fr;width:min(900px,94vw)}
+.sheetSide{display:flex;flex-direction:column;min-height:100%}
+.sheetBand{background:var(--lc,#1D2847);color:#F5EBDC;padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;font-size:12px;letter-spacing:.04em}
+.sheetBand b{font:900 34px/1 var(--display);font-variation-settings:"SOFT" 100;letter-spacing:0}
+.sheetSide canvas{flex:1;width:240px;height:auto;min-height:360px}
+.sheet .specs{max-height:92vh;overflow:auto;padding:26px 32px 22px}
+.sheet.on .specs{animation:paperUp .55s cubic-bezier(.2,.75,.25,1)}
+@keyframes paperUp{from{transform:translateY(26px);opacity:0}to{transform:none;opacity:1}}
+.sheetTop{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.lineTag{background:var(--lc);color:#F5EBDC;font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px}
+.specs .status{font-size:13px}
+.specs h3{margin:2px 0 4px}
+.first{display:inline-block;margin:0 0 10px;font:400 15px var(--serif);border-bottom:2px solid var(--thread)}
+.scale{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;font-size:14px;font-weight:500;margin:0 0 16px}
+.scale i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--lc,#1D2847),var(--thread))}
+.runHead{font:600 14px var(--sans);margin:2px 0 6px}
+.run{border:1px solid rgba(29,40,71,.18);border-radius:4px;margin-bottom:18px;background:#FFFDF9}
+.runTabs{display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(29,40,71,.15)}
+.runTabs button{border:0;background:none;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;opacity:.6;border-bottom:2px solid transparent;margin-bottom:-1px}
+.runTabs button[aria-selected=true]{opacity:1;border-color:var(--thread)}
+.runCmd{display:flex;gap:8px;align-items:center;padding:8px 10px}
+.runCmd code{flex:1;font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-x:auto;white-space:nowrap}
+.copy{border:1px solid rgba(29,40,71,.3);background:transparent;border-radius:3px;font-size:12px;padding:2px 9px;cursor:pointer}
+.runSoon{font-size:14px;opacity:.7;margin:0 0 18px}
+.sib{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:12px;border-top:1px dashed rgba(29,40,71,.3)}
+.sib button{border:0;background:none;cursor:pointer;font:400 15px var(--serif);opacity:.7}
+.sib button:hover,.sib button:focus-visible{opacity:1}
+@media (max-width:760px){.sheet{grid-template-columns:1fr}.sheetSide canvas{width:100%;min-height:110px;height:110px}.titleCanvas{margin-left:-3px}}
+.runCmd[hidden]{display:none}
+
+/* ---- round 7: the real mark, left nav group, logos ---- */
+.navL{display:flex;align-items:baseline;gap:34px}
+.navSub{font-size:15px}
+.mark{width:34px;height:34px}
+.brand .mark{margin:-6px 0 -10px}
+.mark .xr{stroke-dasharray:70;stroke-dashoffset:70;opacity:0;transition:stroke-dashoffset .7s cubic-bezier(.6,.05,.25,1),opacity .3s}
+.brand:hover .mark .xr,.brand:focus-visible .mark .xr{stroke-dashoffset:0;opacity:.9}
+.brand:hover .mark .wf,.brand:focus-visible .mark .wf{animation:slide .8s cubic-bezier(.4,0,.2,1)}
+.brand:hover .mark .wp,.brand:focus-visible .mark .wp{animation:slideV .8s cubic-bezier(.4,0,.2,1) .08s}
+@keyframes slide{to{stroke-dashoffset:-8.4}}
+@keyframes slideV{to{stroke-dashoffset:8.4}}
+.f-brand .mark{width:42px;height:42px;vertical-align:-8px}
+.sheetLogo{background:#FBF5EA;display:flex;align-items:center;justify-content:center;padding:14px}
+.sheetLogo[hidden]{display:none}
+.sheetLogo img{display:block;width:100%;height:auto;max-height:260px;object-fit:contain}
+.sheet.hasLogo .sheetSide canvas{min-height:120px;opacity:.9}
+@media (max-width:860px){.navL{gap:18px}.nav{flex-wrap:wrap;gap:10px}.navSub{display:none}}
+
+/* ---- round 8: the original painted mark; brand level with the nav ---- */
+.nav{align-items:center}
+.navL{align-items:center}
+.brand .mark{width:36px;height:36px;margin:0;display:block;object-fit:contain;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.brand:hover .mark,.brand:focus-visible .mark{transform:rotate(360deg)}
+.f-brand .mark{width:46px;height:46px;vertical-align:-10px;margin-right:12px;display:inline-block}
+@media (prefers-reduced-motion:reduce){.brand:hover .mark{transform:none}}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Research · Textile Labs</title>
+<meta name="description" content="What's coming next from Textile Labs, and what we've learned training small language models from scratch.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@144,900,100&family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+.sec{padding:70px 5vw 0;max-width:1220px;scroll-margin-top:20px}
+.sec > h2{font:400 clamp(30px,3vw,42px)/1.1 var(--serif);margin:0 0 8px}
+.sec > .lead{margin:0 0 30px;max-width:60ch;opacity:.85}
+/* upcoming: a pattern sheet pinned to the board */
+.next{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;background:#FFFDF8 repeating-linear-gradient(0deg,transparent 0 27px,rgba(29,40,71,.07) 27px 28px);border-radius:4px;padding:34px 38px;box-shadow:0 26px 50px -34px rgba(29,40,71,.6);position:relative}
+.next::before{content:"";position:absolute;left:24px;top:0;bottom:0;width:1.5px;background:rgba(181,55,44,.45)}
+.next h3{font:900 44px/1 var(--display);font-variation-settings:"SOFT" 100;margin:0 0 6px}
+.next .status{display:inline-block;color:var(--thread);font-weight:600;font-size:14px;margin-bottom:14px}
+.next ul{margin:14px 0 0;padding:0;list-style:none}
+.next li{padding:9px 0 9px 26px;border-top:1px dashed rgba(29,40,71,.25);position:relative}
+.next li::before{content:"";position:absolute;left:4px;top:17px;width:10px;height:3px;border-radius:2px;background:var(--thread)}
+.ladder{display:flex;flex-direction:column;gap:9px;justify-content:center}
+.rung{display:grid;grid-template-columns:8.5rem 1fr 4rem;gap:12px;align-items:center;font-size:14px}
+.rung b{font:400 16px var(--serif)}
+.rung canvas{height:16px;border-radius:2px;display:block;clip-path:inset(0 100% 0 0);transition:clip-path 1.1s cubic-bezier(.6,.05,.25,1)}
+.in .rung canvas{clip-path:inset(0 0 0 0)}
+.rung span{text-align:right;opacity:.75}
+/* findings: index cards taped into the notebook */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:30px 28px}
+.card{position:relative;background:#FFFDF8;border-radius:2px;padding:30px 24px 22px;box-shadow:0 14px 26px -18px rgba(29,40,71,.55);transform:rotate(var(--tilt));transition:transform .35s cubic-bezier(.2,.8,.2,1.3),box-shadow .3s,opacity .5s;opacity:0}
+.card.in{opacity:1}
+.card::before{content:"";position:absolute;left:50%;top:-11px;width:84px;height:24px;margin-left:-42px;background:rgba(234,214,180,.75);transform:rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.card:hover{transform:rotate(0) translateY(-4px);box-shadow:0 22px 32px -18px rgba(29,40,71,.6)}
+.card time{font:400 14px var(--serif);opacity:.7}
+.card h3{font:400 23px/1.15 var(--serif);margin:4px 0 8px}
+.card p{margin:0 0 12px;font-size:15.5px}
+.card .fig{display:flex;align-items:baseline;gap:8px;border-top:1px dashed rgba(29,40,71,.3);padding-top:10px}
+.card .fig b{font:900 30px/1 var(--display);font-variation-settings:"SOFT" 100;color:var(--thread)}
+.card .fig span{font-size:13px;opacity:.8}
+/* how we work */
+.method{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:2px solid var(--ink)}
+.method div{padding:18px 20px 6px 0;border-right:1px solid rgba(29,40,71,.2)}
+.method div:last-child{border-right:0}
+.method h3{font:400 20px var(--serif);margin:0 0 6px}
+.method p{margin:0;font-size:15px}
+@media (max-width:900px){.next{grid-template-columns:1fr;padding:28px 26px 28px 40px}.method{grid-template-columns:1fr 1fr}.method div:nth-child(2){border-right:0}}
+@media (prefers-reduced-motion:reduce){.card{opacity:1}.rung canvas{clip-path:none}}
+</style>
+</head>
+<body data-page="research" data-sheet>
+<div data-nav></div>
+<main id="main">
+<header class="pageHead"><h1 data-title data-style="ink">Research</h1><p>What we're making next, and what we've learned so far training small language models from scratch. Every number here comes from our own lab notebook.</p></header>
+
+<section class="sec" id="next">
+  <h2>Coming next</h2><p class="lead">Our next release is a whole family at once.</p>
+  <div class="next">
+    <div>
+      <h3>The Loom 4.5 family</h3><span class="status">Coming soon</span>
+      <p>Seven models, from 11 million to 130 million parameters, all from one main training run. They are built to read the text you give them and pull out the answer, use the tools you list, follow small rules from a few examples, and say how sure they are.</p>
+      <ul>
+        <li><b>One run, five models.</b> While Crucible 4.5 trains, it also learns to answer from partway down. Its first 8, 12, 16 and 24 layers each work as a complete smaller model.</li>
+        <li><b>Proved before it's spent.</b> A one-hour run on a small model tests the training data first. The eight-hour run only starts once that passes.</li>
+        <li><b>Bars set in advance.</b> The tests and the scores each model must reach are written down before training starts, and never lowered.</li>
+      </ul>
+    </div>
+    <div class="ladder" id="ladder" aria-label="The seven 4.5 models by size"></div>
+  </div>
+</section>
+
+<section class="sec" id="learned">
+  <h2>What we've learned</h2><p class="lead">Short notes from our experiments, newest first. Some of these are wins; most are things that surprised us.</p>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section class="sec" id="method" style="padding-bottom:40px">
+  <h2>How we work</h2><p class="lead">The rules we hold ourselves to, learned the hard way.</p>
+  <div class="method">
+    <div><h3>From scratch</h3><p>Every Loom starts from random weights. We never fine-tune someone else's model.</p></div>
+    <div><h3>Tests first</h3><p>We write the tests and the pass marks before training, and keep them out of the training data.</p></div>
+    <div><h3>Report the misses</h3><p>When a model misses its bar, we say so on its card instead of moving the bar.</p></div>
+    <div><h3>Write it down</h3><p>Every run, number and mistake goes into the lab notebook, so nothing is learned twice.</p></div>
+  </div>
+</section>
+</main>
+<div data-footer></div>
+<script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
+<script>
+const FINDINGS=[
+ ['Nov 2026','Long context is not free','Training a 141-million-parameter model on 16,000-token documents cost it general reading quality and bought nothing we could measure. The 4.5 family learns to read at 1,000 to 2,000 tokens first.','2K','tokens of context for 4.5'],
+ ['Nov 2026','Small models learn shapes, not kinds','Our models scored well on task types they had practised and close to zero on new kinds of task. So the 4.5 data is built from thousands of different task kinds, not more copies of a few.','0 / 40','on unseen rule kinds before the change'],
+ ['Nov 2026','Agreement tells you when to trust','When several copies of a tiny model answered the same question, an answer most of them agreed on was right far more often than one they split over.','up to 82%','right when 80% or more of the copies agreed'],
+ ['Oct 2026','Honesty can be trained','Weave 4 says when the answer isn\'t in what it was given, refuses tricks hidden in text, and keeps its identity, scoring higher on our honesty test than any Loom before it.','127 / 133','on our honesty test'],
+ ['Sep 2026','You can grow a model','We grew Tapestry 3 from 69 million to 155 million parameters without losing what it knew, by widening and deepening it so it computed the same thing before training continued. That became Crucible Preview.','155M','grown, not started over'],
+ ['Sep 2026','Reading is a data wall','Tiny models did not learn to read from more steps, longer context or clever tricks. Only more reading practice moved it.','0 / 20','reading score for our 2-million-parameter Swift Mini'],
+ ['Sep 2026','Smaller and longer wins','A 7-million-parameter model trained for longer beat a 20-million one trained for the same time. More tokens per parameter mattered more than more parameters.','7.2M','beat 19.9M on the same budget'],
+ ['Sep 2026','Real words beat templates','A tiny router trained on real people\'s requests understood new requests far better than one trained on sentences we generated from templates.','86.5%','real data, against 25.9% from templates']
+];
+const tilt=()=>((Math.random()-.5)*2.4).toFixed(2)+'deg';
+document.getElementById('cards').innerHTML=FINDINGS.map(f=>'<article class="card" style="--tilt:'+tilt()+'"><time>'+f[0]+'</time><h3>'+f[1]+'</h3><p>'+f[2]+'</p><div class="fig"><b>'+f[3]+'</b><span>'+f[4]+'</span></div></article>').join('');
+const fam=TLDATA.all().filter(m=>!m.date).sort((a,b)=>b.params-a.params), maxP=fam[0].params;
+const lad=document.getElementById('ladder');
+fam.forEach((m,i)=>{ const r=document.createElement('button'); r.className='rung'; r.style.cssText='border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:inherit';
+  r.innerHTML='<b>'+m.name+'</b><canvas style="width:'+Math.max(10,Math.sqrt(m.params/maxP)*100)+'%"></canvas><span>'+m.size+'</span>'; lad.appendChild(r);
+  r.querySelector('canvas').style.transitionDelay=(i*0.1)+'s';
+  requestAnimationFrame(()=>TL.paintSwatch(r.querySelector('canvas'),{mix:TLDATA.MIX[m.line],cell:7,seed:i*5+2,ground:'#F1DFCB'}));
+  r.onclick=()=>openSheet(m); });
+function reveal(){ document.querySelectorAll('.card:not(.in),.next:not(.in)').forEach(e=>{ if(e.getBoundingClientRect().top<innerHeight*0.88) e.classList.add('in'); });
+  document.querySelectorAll('.next.in').forEach(n=>n.querySelector('.ladder').parentElement.classList.add('in')); }
+addEventListener('scroll',reveal,{passive:true}); reveal(); setTimeout(reveal,300);
+</script>
+</body>
+</html>

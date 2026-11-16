@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About · Textile Labs</title>
+<meta name="description" content="Textile Labs makes small, honest language models from scratch that run on your own device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@144,900,100&family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+.intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:48px;padding:20px 5vw 0;max-width:1220px;align-items:center}
+.intro p{font-size:clamp(18px,1.5vw,21px);line-height:1.6;margin:0 0 18px;max-width:52ch}
+.intro .big{font:400 clamp(24px,2.3vw,32px)/1.3 var(--serif);max-width:28ch}
+.loomPlate{position:relative;background:#FBF5EA;border-radius:4px;padding:26px;box-shadow:0 26px 50px -30px rgba(29,40,71,.6)}
+.loomPlate .plateMark{width:100%;height:auto;display:block;transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.loomPlate:hover .plateMark{transform:rotate(90deg)}
+.loomPlate figcaption{font-size:13px;opacity:.7;margin-top:10px;text-align:center}
+.names{padding:70px 5vw 0;max-width:1220px}
+.names h2,.beliefs > h2,.goals h2{font:400 clamp(30px,3vw,42px)/1.1 var(--serif);margin:0 0 8px}
+.names .lead,.beliefs > .lead,.goals .lead{margin:0 0 26px;max-width:62ch;opacity:.85}
+.nameRow{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.nameRow div{border-top:2px solid var(--lc);padding-top:12px}
+.nameRow b{display:block;font:400 22px var(--serif)}
+.nameRow span{font-size:15px}
+/* beliefs: each one a woven band that weaves in as you reach it */
+.beliefs{padding:80px 0 0}
+.beliefs > h2,.beliefs > .lead{padding:0 5vw}
+.band{display:grid;grid-template-columns:minmax(120px,24vw) minmax(0,1fr);gap:40px;align-items:center;padding:30px 5vw;border-top:1px solid rgba(29,40,71,.18)}
+.band canvas{width:100%;height:110px;display:block;border-radius:2px;clip-path:inset(0 100% 0 0);transition:clip-path 1.2s cubic-bezier(.6,.05,.25,1)}
+.band.in canvas{clip-path:inset(0 0 0 0)}
+.band h3{font:900 clamp(30px,3.4vw,48px)/1 var(--display);font-variation-settings:"SOFT" 100;margin:0 0 10px;opacity:0;transform:translateY(10px);transition:opacity .6s .25s,transform .7s .25s cubic-bezier(.2,.7,.2,1)}
+.band p{margin:0;max-width:60ch;font-size:17px;opacity:0;transition:opacity .6s .4s}
+.band.in h3{opacity:1;transform:none}.band.in p{opacity:.9}
+.goals{padding:90px 5vw 40px;max-width:1220px;scroll-margin-top:20px}
+.goalList{display:grid;grid-template-columns:repeat(2,1fr);gap:0 50px;counter-reset:g}
+.goalList > div{padding:20px 0;border-top:1px solid rgba(29,40,71,.2);display:grid;grid-template-columns:3rem 1fr;gap:10px}
+.goalList > div::before{counter-increment:g;content:counter(g);font:900 30px/1 var(--display);color:var(--thread)}
+.goalList h3{font:400 21px var(--serif);margin:0 0 4px}
+.goalList p{margin:0;font-size:15.5px}
+.end{display:flex;gap:28px;font-weight:600;padding:24px 0 0}
+.end a{border-bottom:2px solid var(--thread);padding-bottom:3px}
+.end a.quiet{border-color:rgba(29,40,71,.35)}
+@media (max-width:860px){.intro{grid-template-columns:1fr}.nameRow{grid-template-columns:1fr 1fr}.band{grid-template-columns:1fr;gap:14px}.goalList{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.band canvas{clip-path:none}.band h3,.band p{opacity:1;transform:none}}
+</style>
+</head>
+<body data-page="about">
+<div data-nav></div>
+<main id="main">
+<header class="pageHead"><h1 data-title data-style="gouache">About</h1></header>
+<section class="intro">
+  <div>
+    <p class="big">Textile Labs is a small, independent lab that makes small language models, called Looms.</p>
+    <p>Every Loom is trained by us from scratch, on openly licensed data, on two borrowed graphics cards in a single session. They are small enough to run on a laptop or a phone, and they are built to be honest: to say when they don't know, to answer from what you give them, and to never pretend to be something they're not.</p>
+    <p>We publish every model under the MIT licence, with its scores, its misses and the commands to run it.</p>
+  </div>
+  <figure class="loomPlate" id="plate"><figcaption>The Textile Labs mark: one cloth, every thread crossing the others.</figcaption></figure>
+</section>
+
+<section class="names">
+  <h2>Why weaving</h2><p class="lead">A language model is woven from many small patterns crossing each other, so we name ours after cloth. Each line is a size of model.</p>
+  <div class="nameRow" id="nameRow"></div>
+</section>
+
+<section class="beliefs">
+  <h2>What we believe about small models</h2><p class="lead">Most of the field is racing to make models bigger. We think small models deserve the same care.</p>
+  <div class="band"><canvas data-mix="spark"></canvas><div><h3>Small is a feature</h3><p>A model that fits in a few megabytes runs on your own device, works offline, answers instantly and keeps your words private. That is worth more than knowing everything.</p></div></div>
+  <div class="band"><canvas data-mix="weave"></canvas><div><h3>Honesty before cleverness</h3><p>A small model will get things wrong. The useful ones say so: they answer from what you give them, admit what they can't know, and can't be talked into pretending.</p></div></div>
+  <div class="band"><canvas data-mix="tapestry"></canvas><div><h3>Read, don't recite</h3><p>A small model can't hold the world in its weights. It can learn to read: to find the answer in your text or a search result and quote it back.</p></div></div>
+  <div class="band"><canvas data-mix="crucible"></canvas><div><h3>Made, not borrowed</h3><p>We train every Loom from scratch, so we know exactly what went into it, and we can tell you.</p></div></div>
+  <div class="band"><canvas data-mix="planck"></canvas><div><h3>Measured, not promised</h3><p>Every claim on this site comes from a test we wrote before training. When a model misses, we say so.</p></div></div>
+</section>
+
+<section class="goals" id="goals">
+  <h2>Our goals</h2><p class="lead">Where we're heading.</p>
+  <div class="goalList">
+    <div><div><h3>Small models you can rely on</h3><p>Looms that read what you paste, use the tools you list, and are right when they say they're sure.</p></div></div>
+    <div><div><h3>A full family every generation</h3><p>From a model for your phone to a model for your laptop, all trained together and released together.</p></div></div>
+    <div><div><h3>Running everywhere</h3><p>Every Loom works in your browser, in Ollama, LM Studio, Jan, llama.cpp and phone apps, with nothing to set up.</p></div></div>
+    <div><div><h3>Open, and on the record</h3><p>Open weights under MIT, and an honest record of what worked and what didn't, so others can build on it.</p></div></div>
+  </div>
+  <div class="end"><a href="models.html">See the models</a><a class="quiet" href="research.html">Read our research</a></div>
+</section>
+</main>
+<div data-footer></div>
+<script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
+<script>
+document.getElementById('plate').insertAdjacentHTML('afterbegin','<img class="plateMark" src="mark-large.png" alt="The Textile Labs logo: a hand-painted woven square">');
+const names=[['crucible','Crucible','Our largest: the parents the others are cut from.'],['tapestry','Tapestry','Big readers, up to about a hundred million parameters.'],['weave','Weave','The middle: careful, honest and quick.'],['spark','Spark','Small and fast, for laptops and phones.'],['flash','Flash','A third of a parent, most of its manners.'],['swift','Swift','Trained in minutes.'],['planck','Planck','Under two megabytes, for decisions.'],['tools','Tools','Tiny single-job models for inside an app.']];
+document.getElementById('nameRow').innerHTML=names.map(n=>'<div style="--lc:'+TLDATA.LINE_COL[n[0]]+'"><b>'+n[1]+'</b><span>'+n[2]+'</span></div>').join('');
+document.querySelectorAll('.band canvas').forEach((c,i)=>{ const mix=TLDATA.MIX[c.dataset.mix]; TL.paintSwatch(c,{mix,cell:12,seed:i*7+3,ground:mix.ground||'#F1DFCB'}); });
+function reveal(){ document.querySelectorAll('.band:not(.in)').forEach(e=>{ if(e.getBoundingClientRect().top<innerHeight*0.85) e.classList.add('in'); }); }
+addEventListener('scroll',reveal,{passive:true}); reveal(); setTimeout(reveal,300);
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Models · Textile Labs</title>
+<meta name="description" content="Every Loom, filed by its line, with sizes, scores, files and the commands to run each one.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@144,900,100&family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+.jump{display:flex;flex-wrap:wrap;gap:8px;padding:6px 5vw 0}
+.jump a{border:1.5px solid rgba(29,40,71,.25);border-radius:999px;padding:4px 14px;font-size:14px;font-weight:500;background:rgba(255,255,255,.35);transition:background .2s,color .2s}
+.jump a:hover,.jump a:focus-visible{background:var(--ink);color:#F2DDC9;border-color:var(--ink)}
+.line{padding:60px 5vw 0;scroll-margin-top:20px}
+.lineHead{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid rgba(29,40,71,.2)}
+.lineHead h2{font:400 34px var(--serif);margin:0;display:flex;align-items:center;gap:12px}
+.lineHead h2 i{width:14px;height:14px;border-radius:50%;background:var(--lc);display:block}
+.lineHead p{margin:0;opacity:.78;max-width:56ch}
+.lineHead .count{margin-left:auto;font-size:14px;opacity:.6}
+.envs{display:flex;gap:28px;flex-wrap:wrap}
+.env{position:relative;width:184px;height:248px;border:0;padding:0;cursor:pointer;background:none;text-align:left;color:var(--ink)}
+.env .paper{position:absolute;left:12px;right:12px;top:16px;height:176px;background:#FFFDF8 repeating-linear-gradient(0deg,transparent 0 13px,rgba(29,40,71,.08) 13px 14px);border-radius:2px;
+  transition:transform .55s cubic-bezier(.2,.8,.2,1.1);padding:12px;font-size:11px;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.env .paper b{display:block;font:400 13px var(--serif);margin-bottom:4px}
+.env .body{position:absolute;inset:0;background:#F3E6D1;border-radius:3px;box-shadow:0 10px 18px -10px rgba(29,40,71,.5);display:flex;flex-direction:column;overflow:hidden;transition:box-shadow .3s}
+.env .body::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.25),rgba(255,255,255,0) 40%);pointer-events:none}
+.env .band{background:var(--lc);color:#F5EBDC;padding:9px 12px 7px;display:flex;justify-content:space-between;align-items:baseline}
+.env .band b{font:900 28px/1 var(--display);font-variation-settings:"SOFT" 100}
+.env .band span{font-size:11px;letter-spacing:.06em}
+.env canvas{display:block;margin:12px 12px 10px;width:160px;height:108px;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.env .art{display:flex;align-items:center;justify-content:center;margin:12px 12px 10px;width:160px;height:108px;background:#FBF5EA;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05);overflow:hidden}
+.env .art img{display:block;height:100%;width:auto;max-width:100%;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1.2)}
+.env:hover .art img{transform:scale(1.06) rotate(-1deg)}
+.env .nm{padding:0 12px;font:400 18px/1.15 var(--serif)}
+.env .sz{padding:3px 12px 0;font-size:12px;opacity:.75}
+.env .stamp{position:absolute;right:10px;top:58px;transform:rotate(12deg);border:2px solid var(--thread);color:var(--thread);font:600 11px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:3px;background:rgba(255,253,248,.85)}
+.env:hover .paper,.env:focus-visible .paper,.env.open .paper{transform:translateY(-70px) rotate(-2.5deg)}
+.env:hover .body,.env:focus-visible .body{box-shadow:0 18px 26px -12px rgba(29,40,71,.55)}
+.env.open .paper{transform:translateY(-120px) rotate(-4deg);transition-duration:.4s}
+.env{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.env.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.env{opacity:1;transform:none}}
+</style>
+</head>
+<body data-page="models" data-sheet>
+<div data-nav></div>
+<main id="main">
+<header class="pageHead"><h1 data-title data-style="twill">Models</h1><p>Every Loom comes as a sewing pattern, filed by its line. Lift an envelope to read its label, with the commands to run it yourself.</p></header>
+<nav class="jump" id="jump" aria-label="Jump to a line"></nav>
+<div id="stage"></div>
+</main>
+<div data-footer></div>
+<script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
+<script>
+const {LINES,MIX,LINE_COL}=TLDATA;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const st=document.getElementById('stage');
+document.getElementById('jump').innerHTML=LINES.map(l=>'<a href="#'+l.id+'">'+l.name+'</a>').join('');
+LINES.forEach(l=>{
+  const sec=document.createElement('section'); sec.className='line'; sec.id=l.id; sec.style.setProperty('--lc',LINE_COL[l.id]);
+  const n=l.models.length;
+  sec.innerHTML='<div class="lineHead"><h2><i aria-hidden="true"></i>'+l.name+'</h2><p>'+l.about+'</p><span class="count">'+n+' model'+(n>1?'s':'')+'</span></div><div class="envs"></div>';
+  st.appendChild(sec); const box=sec.querySelector('.envs');
+  l.models.forEach((m,i)=>{
+    const b=document.createElement('button'); b.className='env'; b.style.setProperty('--lc',LINE_COL[l.id]); b.setAttribute('aria-label','Open the label for '+m.name+', '+m.size+' parameters'+(m.date?'':', coming soon'));
+    const ver=(m.name.match(/[\d.]+[A-Z]?/)||[l.name[0]])[0];
+    b.innerHTML='<span class="paper"><b>'+m.name+'</b>'+m.specs.slice(0,3).map(r=>r[0]+': '+r[1]).join('<br>')+'</span><span class="body"><span class="band"><span>Textile Labs</span><b>'+ver+'</b></span>'+(m.logo?'<span class="art"><img src="'+m.logo+'" alt="" loading="lazy"></span>':'<canvas></canvas>')+'<span class="nm">'+m.name+'</span><span class="sz">Size '+m.size+(m.date?', '+new Date(m.date).getFullYear():'')+'</span></span>'+(m.date?'':'<span class="stamp">Coming soon</span>');
+    box.appendChild(b); b.style.transitionDelay=(i*0.05)+'s';
+    if(!m.logo) requestAnimationFrame(()=>{ const mix=Object.assign({},MIX[m.line]); TL.paintSwatch(b.querySelector('canvas'),{mix,cell:Math.max(10,Math.round(19-m.layers/4)),seed:(m.name.length*7+m.params*3)|0,ground:mix.ground||'#F1DFCB',w:160,h:108}); });
+    b.onclick=()=>{ b.classList.add('open'); setTimeout(()=>{ openSheet(m); b.classList.remove('open'); }, reduce?0:380); };
+  });
+});
+function reveal(){ document.querySelectorAll('.env:not(.in)').forEach(e=>{ if(e.getBoundingClientRect().top<innerHeight*0.92) e.classList.add('in'); }); }
+addEventListener('scroll',reveal,{passive:true}); reveal(); setTimeout(reveal,200);
+if(location.hash){ const el=document.querySelector(location.hash); el&&setTimeout(()=>el.scrollIntoView(),50); }
+const q=new URLSearchParams(location.search).get('model'); if(q&&TLDATA.bySlug(q)) setTimeout(()=>openSheet(TLDATA.bySlug(q)),300);
+</script>
+</body>
+</html>
