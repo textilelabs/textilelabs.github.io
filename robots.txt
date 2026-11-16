@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://textilelabs.github.io/sitemap.xml
