@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Try a small language model in your browser · Textile Labs</title>
-<meta name="description" content="Chat with a small language model running entirely in your browser, no install and no account. Try Weave 4, Spark 3, Router 1, Atom and more, with or without web search.">
+<meta name="description" content="Chat with a small language model running entirely in your browser, no install and no account. Try Crucible 4.5, Weave 4, Spark 3, Router 1, Atom and more, with or without web search.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@144,900,100&family=Marcellus&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css">
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Textile Labs">
 <meta property="og:title" content="Try a small language model in your browser · Textile Labs">
-<meta property="og:description" content="Chat with a small language model running entirely in your browser, no install and no account. Try Weave 4, Spark 3, Router 1, Atom and more, with or without web search.">
+<meta property="og:description" content="Chat with a small language model running entirely in your browser, no install and no account. Try Crucible 4.5, Weave 4, Spark 3, Router 1, Atom and more, with or without web search.">
 <meta property="og:url" content="https://textilelabs.github.io/try.html">
 <meta property="og:image" content="https://textilelabs.github.io/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -23,7 +23,7 @@
 <meta property="og:image:alt" content="The Textile Labs logo, a hand-painted woven square, beside the words Textile Labs">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Try a small language model in your browser · Textile Labs">
-<meta name="twitter:description" content="Chat with a small language model running entirely in your browser, no install and no account. Try Weave 4, Spark 3, Router 1, Atom and more, with or without web search.">
+<meta name="twitter:description" content="Chat with a small language model running entirely in your browser, no install and no account. Try Crucible 4.5, Weave 4, Spark 3, Router 1, Atom and more, with or without web search.">
 <meta name="twitter:image" content="https://textilelabs.github.io/og-image.jpg">
 <style>
 /* this page is a tool: a shorter header, and the whole workbench fits the window */
@@ -88,6 +88,12 @@
 .msg.step q{display:block;font-style:italic;margin:6px 0 4px}
 .msg.step a{border-bottom:1.5px solid var(--thread)}
 .msg.step.fail{border-color:var(--thread)}
+.menuBox{margin:10px 22px 0;padding:10px 12px;border:1px dashed rgba(29,40,71,.35);border-radius:3px;background:#FBF4EA}
+.menuBox b{display:block;font-size:13px;margin:0 0 6px}
+.menuBox textarea{width:100%;box-sizing:border-box;font:12.5px/1.5 ui-monospace,Menlo,monospace;border:1px solid rgba(29,40,71,.25);border-radius:3px;padding:6px 8px;background:#fff;resize:vertical;min-height:96px}
+.menuBox small{display:block;opacity:.7;margin-top:4px}
+.msg.pick{align-self:flex-start;max-width:86%;background:#fff;border:2px solid var(--sage);border-radius:3px;padding:10px 14px;white-space:normal}
+.msg.pick b{display:block;font-size:18px;margin:2px 0}
 .examples{display:flex;flex-wrap:wrap;gap:6px;padding:10px 22px 0}
 .examples button{border:1px solid rgba(29,40,71,.25);background:transparent;border-radius:999px;padding:3px 11px;font-size:13px;cursor:pointer}
 .examples button:hover{background:#fff}
@@ -115,10 +121,16 @@ form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,
     <p class="fine">These are small models. They know few facts, they get things wrong, and they are built to say so when they can't know. Every Loom can also run on your computer: see its label on the <a href="models.html">models page</a>, or find the right one on <a href="use-cases.html">use cases</a>.</p></div></aside>
   <section class="chat" aria-label="Chat">
     <div class="chatHead"><div><b id="cName"></b><small id="cInfo"></small></div>
-      <div class="headBtns"><label class="netSw" id="netWrap" hidden title="Lets the model look things up on Wikipedia, the same way harness.py does"><input type="checkbox" id="net"><span class="track" aria-hidden="true"></span><span>Web search</span></label><button class="btn" id="loadBtn">Load the model</button></div></div>
+      <div class="headBtns"><label class="netSw" id="netWrap" hidden title="Lets the model look things up on Wikipedia, the same way harness.py does"><input type="checkbox" id="net"><span class="track" aria-hidden="true"></span><span id="netLabel">Web search</span></label><label class="netSw" id="menuWrap" hidden title="Give it your app's list of actions; it quotes the line that fits and this page picks the tool, like pick_tool() in harness.py"><input type="checkbox" id="menuOn"><span class="track" aria-hidden="true"></span><span>Tool menu</span></label><button class="btn" id="loadBtn">Load the model</button></div></div>
     <div class="progress" id="prog" aria-hidden="true"><i></i></div>
     <div class="log" id="log" aria-live="polite"></div>
-    <div><div class="examples" id="examples"></div>
+    <div><div class="menuBox" id="menuBox" hidden><b>Your app's tools, one per line: name(arguments): what it does</b><textarea id="menuText" spellcheck="false">set_heating(temperature): set the heating to a temperature in degrees C
+lock_door(): lock the front door
+dim_lights(room, level): set the lights in a room to a brightness
+add_to_list(item): add something to the shopping list
+start_timer(minutes): start a countdown timer
+send_message(person, text): send someone a text message</textarea><small>Type a request below. The model quotes the line that fits; this page matches that line to its tool, exactly like pick_tool() in the harness.</small></div>
+    <div class="examples" id="examples"></div>
       <form class="ask" id="ask"><label class="vh" for="q">Your message</label><textarea id="q" rows="1" placeholder="Ask something" disabled></textarea><button class="btn" id="send" disabled>Send</button><button type="button" class="btn quiet" id="stop" hidden>Stop</button></form></div>
   </section>
 </div>
@@ -127,17 +139,17 @@ form.ask textarea{flex:1;resize:none;font:inherit;border:1.5px solid rgba(29,40,
 <script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
 <script type="module">
 const WL='https://cdn.jsdelivr.net/npm/@wllama/wllama@3.8.1';
-const order=['weave-4','spark-3','tapestry-3-flash','swift-mini-2','planck-1-2m','swift-micro-2','router-1','atom'];
+const order=['crucible-4-5','weave-4','spark-3','tapestry-3-flash','swift-mini-2','planck-1-2m','swift-micro-2','router-1','atom'];
 // Which Looms were trained to write <lookup> calls, and which harness.py their repo ships:
 //  finder  = the Weave 4 / Spark 3 / Swift 2 harness (searches the query and the subject, hands back ONE sentence)
 //  summary = the Tapestry 3 Flash harness (top hit's summary, first two sentences)
 //  tools   = the Swift 2 / Planck harness also runs <tool>calc ...</tool> and <tool>date ...</tool>
-const NET={'weave-4':{kind:'finder'},'spark-3':{kind:'finder'},'tapestry-3-flash':{kind:'summary'},
+const NET={'crucible-4-5':{kind:'finder',tools:true,memory:true,menu:true},'weave-4':{kind:'finder'},'spark-3':{kind:'finder'},'tapestry-3-flash':{kind:'summary'},
   'swift-mini-2':{kind:'finder',tools:true},'swift-micro-2':{kind:'finder',tools:true},'planck-1-2m':{kind:'finder',tools:true}};
 const demos=TLDATA.all().filter(m=>m.demo).sort((x,y)=>order.indexOf(x.slug)-order.indexOf(y.slug));
 const params=new URLSearchParams(location.search);
-let cur=TLDATA.bySlug(params.get('model')); if(!cur||!cur.demo) cur=demos.find(m=>m.slug==='weave-4')||demos[0];
-const $=id=>document.getElementById(id), log=$('log'), q=$('q'), send=$('send'), stop=$('stop'), loadBtn=$('loadBtn'), prog=$('prog'), net=$('net');
+let cur=TLDATA.bySlug(params.get('model')); if(!cur||!cur.demo) cur=demos.find(m=>m.slug==='crucible-4-5')||demos[0];
+const $=id=>document.getElementById(id), menuOn=document.getElementById('menuOn'), log=$('log'), q=$('q'), send=$('send'), stop=$('stop'), loadBtn=$('loadBtn'), prog=$('prog'), net=$('net');
 let wllama=null, loaded=null, history=[], abort=null;
 if(params.get('search')==='on') net.checked=true;
 
@@ -156,6 +168,9 @@ const ROUTES={search:['Search','Look it up on the web'],calc:['Calculator','Work
 const EX={chat:['Who are you?','What can\'t you do?','Text: The bridge was built in 1891 by Ada Lowe. Who built the bridge?','What is my mother\'s name?'],
   net:['What is the capital of Peru?','Who wrote Dracula?','What is the chemical symbol for gold?','When did the Titanic sink?'],
   tools:['What is 15% of 840?','What day is it in 20 days?'],
+  crucible:['Who are you?','What is 2+2?','Write a short email telling the team the meeting moved to Friday','My name is Sam.','What is my name?','Text: The bridge was built in 1891 by Ada Lowe. Who built the bridge?','What is my dog called?'],
+  crucibleTools:['What is 15% of 1150?','Work out 482 times 539','Who wrote Dracula?','Where is Lisbon?','What can you do?'],
+  menu:['Put the heating up to 21','Add eggs to the shopping list','Text Sam that I am running late','Turn the kitchen lights down to 30','Start a 12 minute timer','Book me a haircut'],
   route:['remind me to call mum at 6','whats the weather in leeds tomorrow','play some jazz','whats my sisters name','convert 30 miles to km'],
   gate:['whats the weather in leeds','who are you','convert 30 miles to km','i had a rough day']};
 const mode=m=>m.demoMode||'chat';
@@ -167,24 +182,34 @@ demos.forEach(m=>{ const b=document.createElement('button'); b.className='tagBtn
   $(mode(m)==='chat'?'optsChat':'optsDec').appendChild(b);
   if(!m.logo) requestAnimationFrame(()=>TL.paintSwatch(b.querySelector('canvas'),{mix:TLDATA.MIX[m.line],cell:9,seed:m.name.length*7,ground:'#F1DFCB',w:48,h:48}));
   b.onclick=()=>{ select(m); into(); }; });
-function examples(m){ let ex=EX[mode(m)]; if(mode(m)==='chat'&&NET[m.slug]&&net.checked) ex=EX.net.concat(NET[m.slug].tools?EX.tools:[]);
+const isMenu=()=>!!(loaded&&NET[loaded.slug]&&NET[loaded.slug].menu&&menuOn.checked);
+function examples(m){ let ex=EX[mode(m)]; const sp=NET[m.slug]||{};
+  if(sp.menu&&menuOn.checked) ex=EX.menu;
+  else if(sp.memory) ex=net.checked?EX.crucibleTools:EX.crucible;
+  else if(mode(m)==='chat'&&NET[m.slug]&&net.checked) ex=EX.net.concat(sp.tools?EX.tools:[]);
   $('examples').innerHTML=ex.map(e=>'<button type="button">'+esc(e)+'</button>').join('');
   $('examples').querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{ q.value=ex[i]; if(!q.disabled) q.focus(); }); }
 function add(cls,text){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
 function setReady(on){ q.disabled=!on; send.disabled=!on; }
 const intro={chat:'Ask it something.',route:'Type a request. Router 1 answers with one label: the tool that should handle it.',gate:'Type a request. Atom answers one question: does this need a tool?'};
+const netNote2='Tools are on: it can search Wikipedia and use a calculator, and you will see each step the harness takes. Each question is asked fresh (it is more reliable that way); switch tools off to chat with memory. Only search words leave your device.';
 const netNote='Web search is on. When the model decides it needs to look something up, it writes a search; this page runs it on Wikipedia and hands back a short passage, exactly as the harness.py in its repo does. You will see each step. Only the search words leave your device, and each question is asked fresh.';
-function placeholder(m){ q.placeholder=mode(m)!=='chat'?'Type a request, like "remind me to call mum at 6"':(NET[m.slug]&&net.checked?'Ask a factual question, like "who wrote Dracula?"':'Ask something, or paste a short text and ask about it'); }
+function placeholder(m){ if((NET[m.slug]||{}).menu&&menuOn.checked){ q.placeholder='Type a request for your app, like "put the heating up to 21"'; return; }
+  if((NET[m.slug]||{}).memory){ q.placeholder=net.checked?'Ask a question or a sum, like "what is 15% of 1150?"':'Chat, ask for a short email, or paste a text and ask about it'; return; }
+  q.placeholder=mode(m)!=='chat'?'Type a request, like "remind me to call mum at 6"':(NET[m.slug]&&net.checked?'Ask a factual question, like "who wrote Dracula?"':'Ask something, or paste a short text and ask about it'); }
 function select(m){ cur=m; document.querySelectorAll('.tagBtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.slug===m.slug)));
   $('cName').textContent='Loom '+m.name; $('cInfo').textContent=m.size+' parameters, '+size(m)+' download';
-  $('netWrap').hidden=!NET[m.slug]; placeholder(m);
+  $('netWrap').hidden=!NET[m.slug]; const sp=NET[m.slug]||{}; $('menuWrap').hidden=!sp.menu; if(!sp.menu) menuOn.checked=false; $('menuBox').hidden=!(sp.menu&&menuOn.checked);
+  $('netLabel').textContent=sp.memory?'Tools (search + calculator)':'Web search'; placeholder(m);
   history=[]; log.innerHTML=''; examples(m);
   if(loaded===m){ loadBtn.hidden=true; setReady(true); add('sys','Ready. '+intro[mode(m)]); if(searching()) add('sys',netNote); }
   else { loadBtn.hidden=false; loadBtn.disabled=false; loadBtn.textContent='Load the model'; setReady(false); add('sys','Load '+m.name+' to start. '+intro[mode(m)]+' It stays cached in your browser, so next time it opens straight away.'+(NET[m.slug]?' It can also search the web: switch on Web search to watch how.':'')); }
   syncUrl(); }
 function syncUrl(){ try{ const u=new URL(location); u.searchParams.set('model',cur.slug); if(NET[cur.slug]&&net.checked) u.searchParams.set('search','on'); else u.searchParams.delete('search'); window.history.replaceState(null,'',u); }catch(_){} }
-net.onchange=()=>{ examples(cur); placeholder(cur); syncUrl(); history=[];
-  if(loaded===cur) add('sys',net.checked?netNote:'Web search is off. Everything stays on your device.'); };
+menuOn.onchange=()=>{ $('menuBox').hidden=!menuOn.checked; examples(cur); placeholder(cur);
+  if(loaded===cur) add('sys',menuOn.checked?'Tool menu is on. Edit the list above, then type a request: the model quotes the line that fits and the page picks that tool. Nothing is actually run.':'Tool menu is off.'); };
+net.onchange=()=>{ examples(cur); placeholder(cur); syncUrl(); history=[];                       // a fresh conversation: old chat must never look like a search result
+  if(loaded===cur) add('sys',net.checked?((NET[cur.slug]||{}).memory?netNote2:netNote):'Tools are off. New conversation; everything stays on your device.'); };
 async function load(){
   loadBtn.disabled=true; loadBtn.textContent='Loading…'; prog.style.visibility='visible'; prog.firstChild.style.width='0';
   try{
@@ -192,7 +217,7 @@ async function load(){
     if(wllama){ try{ await wllama.exit(); }catch(_){} }
     wllama=new Wllama({default:WL+'/src/wasm/wllama.wasm'},{suppressNativeLog:true});
     await wllama.loadModelFromHF({repo:'textilelabs/'+cur.hf,file:cur.demo},{n_ctx:mode(cur)==='chat'?2048:256,progressCallback:({loaded:l,total:t})=>{ prog.firstChild.style.width=(t?100*l/t:0)+'%'; }});
-    loaded=cur; loadBtn.hidden=true; prog.style.visibility='hidden'; setReady(true); log.innerHTML=''; add('sys','Ready. '+cur.name+' is running on your device. '+intro[mode(cur)]); if(searching()) add('sys',netNote); q.focus();
+    loaded=cur; loadBtn.hidden=true; prog.style.visibility='hidden'; setReady(true); log.innerHTML=''; add('sys','Ready. '+cur.name+' is running on your device. '+intro[mode(cur)]+((NET[cur.slug]||{}).memory&&!net.checked?' It remembers this conversation.':'')); if(searching()) add('sys',(NET[cur.slug]||{}).memory?netNote2:netNote); q.focus();
   }catch(e){ console.error(e); prog.style.visibility='hidden'; loadBtn.disabled=false; loadBtn.textContent='Try again';
     add('sys','The model could not load: '+(e&&e.message?e.message:'unknown error')+'. Check your connection and try again, or use a desktop browser.'); }
 }
@@ -298,14 +323,17 @@ function safeDate(cmd){ try{ cmd=cmd.trim(); const DAY=['Sunday','Monday','Tuesd
 
 // one turn through the harness: ask with tools on; if the model writes a call, run it and ask again with the result
 async function harnessTurn(text){
-  const spec=NET[loaded.slug], convo='<tools:on>\n<user>\n'+text.trim()+'\n<|eot|>\n<loom>\n';
+  const spec=NET[loaded.slug];
+  let convo='<tools:on>\n'; if(spec.toolsMemory) for(const t of history) convo+= t.role==='user' ? '<user>\n'+t.content+'\n<|eot|>\n' : '<loom>\n'+t.content+'<|eot|>\n';
+  convo+='<user>\n'+text.trim()+'\n<|eot|>\n<loom>\n';
+  const remember=a=>{ if(!spec.toolsMemory) return; history.push({role:'user',content:text.trim()},{role:'assistant',content:(a||'').trim()}); while(history.length>12) history.shift(); };
   const thinking=add('sys','Thinking…');
   const first=await generate(convo,160,null,/<\/lookup>|<\/tool>/); thinking.remove();
   const tool=first.match(/<tool>\s*(calc|date)\s+([\s\S]*?)<\/tool>/), look=first.match(/<lookup>([\s\S]*?)<\/lookup>/);
   if(spec.tools&&tool){ const k=tool[1], arg=tool[2].trim(), out=k==='calc'?safeCalc(arg):safeDate(arg);
     step('<span class="st">THE MODEL CALLED A TOOL</span><code>'+esc(tool[0])+'</code><br>The harness ran the '+(k==='calc'?'calculator':'date tool')+' and handed back: <b>'+esc(out)+'</b>');
-    const o=add('m',''); await generate(convo+first+'<|eot|>\n<output>\n'+out+'\n<|eot|>\n<loom>\n',64,o); return; }
-  if(!look){ const o=add('m',''); render(o,first||'(no answer)'); return; }  // it answered without searching
+    const o=add('m',''); const a=await generate(convo+first+'<|eot|>\n<output>\n'+out+'\n<|eot|>\n<loom>\n',64,o); remember(a); return; }
+  if(!look){ const o=add('m',''); render(o,first||'(no answer)'); remember(first); return; }  // it answered without searching
   const query=look[1].trim();
   const s=step('<span class="st">THE MODEL WANTS TO LOOK SOMETHING UP</span><code>'+esc(look[0])+'</code><br><span class="note">Searching Wikipedia…</span>');
   const fail=msg=>{ s.classList.add('fail'); s.querySelector('.note').textContent=msg; };
@@ -318,12 +346,32 @@ async function harnessTurn(text){
   log.scrollTop=log.scrollHeight;
   const o=add('m',''); const ans=await generate(convo+first+'<|eot|>\n<result>\n'+result+'\n<|eot|>\n<loom>\n',spec.tools?64:48,o,/<lookup>/);
   if(/<lookup>/.test(ans)){ o.textContent=ans.replace(/<lookup>[\s\S]*$/,'').trim()||'(no answer)'; add('sys','It tried to search a second time. The harness allows one search per question, so it stops here.'); }
+  remember(ans.replace(/<lookup>[\s\S]*$/,''));
+}
+
+/* ---------- tool menu: pick_tool() from harness.py - the model quotes the line that fits, the page maps that LINE to its tool ---------- */
+function bigrams(s){ s=s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); const m=new Map(); for(let i=0;i<s.length-1;i++){ const g=s.slice(i,i+2); m.set(g,(m.get(g)||0)+1); } return m; }
+function sim(a,b){ const A=bigrams(a), B=bigrams(b); let inter=0, na=0, nb=0; A.forEach(v=>na+=v); B.forEach(v=>nb+=v); A.forEach((v,g)=>{ if(B.has(g)) inter+=Math.min(v,B.get(g)); }); return na+nb?2*inter/(na+nb):0; }
+async function menuTurn(text){
+  const tools=$('menuText').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const m=l.match(/^([A-Za-z_][\w]*)\s*\(([^)]*)\)\s*:\s*(.+)$/); return m?{name:m[1],args:m[2],desc:m[3],line:l}:null; }).filter(Boolean);
+  if(!tools.length){ add('sys','The tool list is empty or not in the form name(arguments): what it does.'); return; }
+  const prompt='<tools:on>\n<user>\nTools you may call:\n'+tools.map(t=>'- '+t.name+'('+t.args+'): '+t.desc).join('\n')+'\n\nRequest: '+text.trim()+'\n<|eot|>\n<loom>\n';
+  const thinking=add('sys','Thinking…'); const raw=await generate(prompt,96,null,/<\/tool>/); thinking.remove();
+  const quote=(raw.match(/"([^"]+)"/)||[])[1], call=(raw.match(/<tool>([\s\S]*?)(<\/tool>|$)/)||[])[1];
+  step('<span class="st">WHAT THE MODEL WROTE</span><code>'+esc(raw.trim()||'(nothing)')+'</code>');
+  const d=document.createElement('div'); d.className='msg pick';
+  if(!quote){ d.innerHTML='<span class="st">No tool picked</span>It didn\'t quote a line from the menu'+(/none|no tool|can.t|not able|doesn.t fit/i.test(raw)?' (it says none of these tools fits).':'.'); log.appendChild(d); return; }
+  const best=tools.map(t=>({t,s:sim(quote,t.desc)})).sort((x,y)=>y.s-x.s)[0];
+  const args=call?call.trim().split(/\s+/).slice(1).join(' '):'';
+  d.innerHTML='<span class="st">THE HARNESS PICKED</span><b>'+esc(best.t.name)+'('+esc(best.t.args)+')</b>'+esc(best.t.desc)+(args?'<br><small>Values the model wrote: '+esc(args)+'</small>':'')+'<br><small>It quoted “'+esc(quote)+'”, which matches this line. Check the choice before running anything that matters: on our held-out menus this is right about half the time.</small>';
+  log.appendChild(d); log.scrollTop=log.scrollHeight;
 }
 
 $('ask').onsubmit=async e=>{ e.preventDefault(); const text=q.value.trim(); if(!text||!loaded) return; q.value=''; add('u',text);
   setReady(false);
   try{
     if(mode(loaded)!=='chat') await decide(text);
+    else if(isMenu()){ stop.hidden=false; await menuTurn(text); }
     else if(searching()){ stop.hidden=false; await harnessTurn(text); }
     else { history.push({role:'user',content:text}); stop.hidden=false; const out=add('m','');
       const reply=await generate(chatPrompt(),256,out); history.push({role:'assistant',content:reply}); if(history.length>12) history.splice(0,history.length-12); }

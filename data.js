@@ -1,5 +1,5 @@
 /* Textile Labs: every Loom, by line. One source for the models page, the timeline and the try page.
-   Sizes and dates: Hugging Face (textilelabs) and the lab registry, checked 2026-11-16. 4.5 models are coming soon. */
+   Sizes and dates: Hugging Face (textilelabs) and the lab registry, checked 2026-11-16. Crucible 4.5 released 2026-11-21; the rest of 4.5 coming soon. */
 (function(){
 const HF='https://huggingface.co/textilelabs/';
 const C=['laptop','offline','mit'];
@@ -7,7 +7,7 @@ function M(o){ return Object.assign({status:'Released',care:C,specs:[]},o); }
 const LINES=[
  {id:'crucible',name:'Crucible',about:'Our largest Looms, the parents the others are cut from.',models:[
    M({name:'Crucible Preview',size:'155M',params:154.98,layers:52,date:'2026-09-23',hf:'Loom-Crucible-Preview',what:'Our first big reader, grown from Tapestry 3.',specs:[['Parameters','154,980,864'],['Shape','52 layers × 512'],['Context','1,024 tokens'],['Honesty test','125 / 133']]}),
-   M({name:'Crucible 4.5',size:'130M',params:130.06,layers:32,status:'Coming soon',what:'The parent of the 4.5 family. Reads what you paste, uses the tools you list, and says how sure it is.',specs:[['Parameters','130,056,704'],['Shape','32 layers × 512'],['Context','2,048 tokens'],['Made','One 8-hour run, from scratch']],care:['laptop','tools','scratch','mit']})]},
+   M({name:'Crucible 4.5',size:'130M',params:130.06,layers:32,date:'2026-11-21',hf:'Loom-Crucible-4.5',demo:'loom-crucible-4.5-q4_k_m.gguf',demoMB:81,what:'The parent of the 4.5 family. Does sums with a calculator, remembers what you told it, writes short emails, and quotes the sentence it read.',specs:[['Parameters','130,056,704'],['Shape','32 layers × 512'],['Context','2,048 tokens'],['Everyday checks','12 / 12'],['Calculator','40 / 40'],['Honesty test','123 / 133']],care:['laptop','phone','tools','mit']})]},
  {id:'tapestry',name:'Tapestry',about:'Big readers, up to about a hundred million parameters.',models:[
    M({name:'Tapestry 2',size:'22.8M',params:22.83,layers:20,date:'2026-09-04',hf:'Loom-Tapestry-2',what:'Our first Loom trained with Muon.',specs:[['Parameters','22,827,840'],['Shape','20 layers × 320'],['Honesty test','107 / 133']],care:['laptop','phone','mit']}),
    M({name:'Tapestry 3',size:'69.2M',params:69.24,layers:40,date:'2026-09-21',hf:'Loom-Tapestry-3',what:'Grown from Weave 3; the best live searcher of its time.',specs:[['Parameters','69,237,120'],['Shape','40 layers × 384'],['Honesty test','123 / 133']]}),
@@ -49,10 +49,10 @@ const LINES=[
 ];
 // GGUF files on Hugging Face (checked 2026-11-16) and moments worth marking on the timeline
 const FILES={'Loom-Spark':['F32'],'Loom-Spark-1.5':['F32'],'Loom-Spark-1.8':['F32'],'Loom-Spark-1.5-Flash':['F32'],'Loom-Spark-1.8-Flash':['F32'],'Loom-Weave-2':['F16','Q8_0'],
-  'Loom-Weave-4':['F16','Q8_0','Q4_K_M'],'Loom-Swift-Mini-2':['F16','Q8_0','Q4_K_M'],'Loom-Swift-Micro-2':['F16','Q8_0','Q4_K_M'],'Loom-Planck-300k':['F16','Q8_0','Q4_K_M'],'Loom-Planck-600k':['F16','Q8_0','Q4_K_M'],'Loom-Planck-1.2m':['F16','Q8_0','Q4_K_M']};
+  'Loom-Weave-4':['F16','Q8_0','Q4_K_M'],'Loom-Crucible-4.5':['F16','Q8_0','Q4_K_M'],'Loom-Swift-Mini-2':['F16','Q8_0','Q4_K_M'],'Loom-Swift-Micro-2':['F16','Q8_0','Q4_K_M'],'Loom-Planck-300k':['F16','Q8_0','Q4_K_M'],'Loom-Planck-600k':['F16','Q8_0','Q4_K_M'],'Loom-Planck-1.2m':['F16','Q8_0','Q4_K_M']};
 const FIRST={'Spark':'The first Loom','Spark 1.5 Flash':'The first Flash','Router 1':'The first single-job model','Tapestry 2':'First trained with Muon','Tapestry 3 Flash':'A third of the size, most of the score',
   'Weave 3':'First to read live Wikipedia','Tapestry 3':'First grown from a smaller Loom','Crucible Preview':'Our largest Loom so far','Weave 4':'Best honesty score: 127 / 133','Swift Micro':'Trained in five minutes','Planck 300K':'Our smallest Loom','Crucible 4.5':'Seven models from one run'};
-const LOGOS=new Set(["atom", "crucible-preview", "planck-1-2m", "planck-300k", "planck-600k", "router-1", "spark-2", "spark-3", "spark-3-2", "spark-3-flash", "swift-micro", "swift-micro-2", "swift-mini", "swift-mini-2", "tapestry-2", "tapestry-3", "tapestry-3-flash", "weave-2", "weave-2-flash", "weave-3", "weave-4"]), MARKLOGO=new Set(['spark','spark-1-5','spark-1-8','spark-1-5-flash','spark-1-8-flash']);
+const LOGOS=new Set(["atom", "crucible-preview", "crucible-4-5", "planck-1-2m", "planck-300k", "planck-600k", "router-1", "spark-2", "spark-3", "spark-3-2", "spark-3-flash", "swift-micro", "swift-micro-2", "swift-mini", "swift-mini-2", "tapestry-2", "tapestry-3", "tapestry-3-flash", "weave-2", "weave-2-flash", "weave-3", "weave-4"]), MARKLOGO=new Set(['spark','spark-1-5','spark-1-8','spark-1-5-flash','spark-1-8-flash']);
 LINES.forEach(l=>l.models.forEach(m=>{ m.line=l.id; if(m.hf){ m.files=FILES[m.hf]||['F16']; m.tag=m.files.includes('Q4_K_M')?':Q4_K_M':(m.files.length>1?':'+m.files[m.files.length-1]:''); } if(FIRST[m.name]) m.first=FIRST[m.name]; m.lineName=l.name; if(m.hf) m.url=HF+m.hf; m.slug=m.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'); m.logo=LOGOS.has(m.slug)?'logo-'+m.slug+'.jpg':(MARKLOGO.has(m.slug)?'mark-large.png':null); }));
 const MIX={
   crucible:{warp:'sage',weft:'copper',dot:'navy',navy:.7,gap:.05,accent:'red',accentEvery:9,accentRow:4},
