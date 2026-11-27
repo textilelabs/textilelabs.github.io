@@ -43,6 +43,14 @@
 .rung canvas{height:16px;border-radius:2px;display:block;clip-path:inset(0 100% 0 0);transition:clip-path 1.1s cubic-bezier(.6,.05,.25,1)}
 .in .rung canvas{clip-path:inset(0 0 0 0)}
 .rung span{text-align:right;opacity:.75}
+/* how we made the connoisseurs: a numbered sequence of real steps */
+.made{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px 34px;margin-top:8px;counter-reset:step}
+.made div{position:relative;padding-top:44px;counter-increment:step}
+.made div::before{content:counter(step);position:absolute;top:0;left:0;font:900 34px/1 var(--display);font-variation-settings:"SOFT" 100;color:var(--thread)}
+.made h3{font:400 22px/1.2 var(--serif);margin:0 0 6px}.made p{margin:0;font-size:15.5px}
+.scorecard{margin:34px 0 0;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.scorecard div{padding:16px 14px;border-right:1px dashed rgba(29,40,71,.3)}.scorecard div:last-child{border-right:0}
+.scorecard b{display:block;font:900 32px/1 var(--display);font-variation-settings:"SOFT" 100}.scorecard span{font-size:14px;opacity:.85}
 /* findings: index cards taped into the notebook */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:30px 28px}
 .card{position:relative;background:#FFFDF8;border-radius:2px;padding:30px 24px 22px;box-shadow:0 14px 26px -18px rgba(29,40,71,.55);transform:rotate(var(--tilt));transition:transform .35s cubic-bezier(.2,.8,.2,1.3),box-shadow .3s,opacity .5s;opacity:0}
@@ -69,6 +77,26 @@
 <div data-nav></div>
 <main id="main">
 <header class="pageHead"><h1 data-title data-style="ink">Research</h1><p>What we're making next, and what we've learned so far training small language models from scratch. Every number here comes from our own lab notebook.</p></header>
+
+<section class="sec" id="connoisseurs">
+  <h2>How we made the Loom Connoisseurs</h2>
+  <p class="lead">A connoisseur is Loom Crucible 4.5, unchanged, plus one notes file. Getting there took a week of failed attempts first. Here is what worked, what didn't, and the numbers.</p>
+  <div class="made">
+    <div><h3>We tried teaching it to read</h3><p>Training the model to answer from notes failed: it learned the style and picked the wrong sentence. Our first reader got 14 of 77 textbook facts.</p></div>
+    <div><h3>Then we asked what it already knew</h3><p>Instead of training, we ask the model how naturally the question follows each note. This scoring was published by Sachan and colleagues in 2022; we found it works even for our 130M model.</p></div>
+    <div><h3>The same score keeps it honest</h3><p>If no note makes the question much more likely than no note at all, it says "That isn't in my notes". A check that a "how much" or "when" question gets an answer with a number backs it up.</p></div>
+    <div><h3>Tidy notes, true sentences</h3><p>An organiser splits each document by section and removes clutter. The connoisseur then quotes the true sentences with their source, so it never words an answer it can't back up.</p></div>
+    <div><h3>We tried making it talk</h3><p>A small add-on that rephrased answers sounded natural but swapped in the wrong name or year in 39 of 60 tests, using words that were in the notes. We kept quoting.</p></div>
+    <div><h3>Tested before release</h3><p>Every connoisseur was scored on exams written before testing, including one field never used for any decision, and compared with a model about 30 times bigger.</p></div>
+  </div>
+  <div class="scorecard" aria-label="Loom Connoisseurs against Gemma 4, all six fields">
+    <div><b>58 / 84</b><span>facts right, Loom Connoisseurs (130M + notes)</span></div>
+    <div><b>42 / 84</b><span>Google Gemma 4 (about 4B) answering from memory</span></div>
+    <div><b>69 / 84</b><span>Gemma 4 given the same notes: it still reads them better</span></div>
+    <div><b>16 / 20</b><span>missing answers caught by the connoisseurs, against 0 / 20 for Gemma 4 alone</span></div>
+  </div>
+  <p style="margin-top:18px;font-size:15px;max-width:70ch">Measured on our own 105-question exams across six fields, on a laptop CPU. Limits: they are best at look-up questions, weaker on everyday wording, and they don't summarise or do maths. <a href="models.html#connoisseurs" style="border-bottom:2px solid var(--thread)">See the Connoisseurs</a>.</p>
+</section>
 
 <section class="sec" id="next">
   <h2>Coming next</h2><p class="lead">Our next release is a whole family at once.</p>
@@ -105,6 +133,9 @@
 <script src="data.js"></script><script src="painter.js"></script><script src="chrome.js"></script>
 <script>
 const FINDINGS=[
+ ['Nov 2026','A small model with notes beats a big one guessing','Loom Crucible 4.5 with a notes file answered 58 of 84 field questions; Gemma 4, about 30 times bigger, got 42 from memory, and never said it didn\'t know.','58 vs 42','facts out of 84'],
+ ['Nov 2026','Fluent is not the same as right','An add-on that rephrased answers wrote natural sentences but used the wrong name or year from the notes most of the time. Checking that every word was in the notes could not catch it.','39 / 60','sounded right, was wrong'],
+ ['Nov 2026','The model\'s own surprise is an honesty check','How much a note raises the chance of the question works as a "do I know this?" test with no training. It caught most questions whose answer was not in the notes.','16 / 20','missing answers caught'],
  ['Nov 2026','Long context is not free','Training a 141-million-parameter model on 16,000-token documents cost it general reading quality and bought nothing we could measure. The 4.5 family learns to read at 1,000 to 2,000 tokens first.','2K','tokens of context for 4.5'],
  ['Nov 2026','Small models learn shapes, not kinds','Our models scored well on task types they had practised and close to zero on new kinds of task. So the 4.5 data is built from thousands of different task kinds, not more copies of a few.','0 / 40','on unseen rule kinds before the change'],
  ['Nov 2026','Agreement tells you when to trust','When several copies of a tiny model answered the same question, an answer most of them agreed on was right far more often than one they split over.','up to 82%','right when 80% or more of the copies agreed'],
